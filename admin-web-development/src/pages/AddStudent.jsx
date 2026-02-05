@@ -18,6 +18,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { addStudent } from "../redux/slices/studentSlice";
+import StatusResult from "../generic/Status";
 
 const inputStyle = {
   "& .MuiOutlinedInput-root": {
@@ -112,6 +113,7 @@ const AddStudent = () => {
 
   const [errors, setErrors] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   // dropdown options
   const programOptions = ["Internship", "Course"];
@@ -169,11 +171,25 @@ const AddStudent = () => {
     }
   };
 
+  const requiredFields = [
+    "studentName",
+    "emailId",
+    "phoneNumber",
+    "programType",
+    "modeOfTraining",
+    "courseName",
+    "status",
+  ];
+
   const validateForm = () => {
     const newErrors = {};
-    Object.entries(formData).forEach(([key, value]) => {
-      if (!String(value).trim()) newErrors[key] = true;
+
+    requiredFields.forEach((field) => {
+      if (!formData[field]?.toString().trim()) {
+        newErrors[field] = true;
+      }
     });
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -184,27 +200,39 @@ const AddStudent = () => {
       try {
         await dispatch(addStudent(formData)).unwrap();
         setShowSuccess(true);
-        setTimeout(() => navigate("/students/list"), 1500);
       } catch (err) {
-        console.error("Failed to add student:", err);
+        setSubmitError("Failed to add student. Please try again.");
       }
     }
   };
 
-  // Loading, success, and error states
+  // StatusResult renders FIRST - handles success/error states
+  if (showSuccess)
+    return (
+      <StatusResult
+        type="success"
+        title="Student Added Successfully"
+        message="Student information has been recorded successfully."
+        redirectTo="/students/list"
+        buttonText="View Students"
+      />
+    );
+
+  if (submitError)
+    return (
+      <StatusResult
+        type="error"
+        title="Add Student Failed"
+        message={submitError}
+        redirectTo="/students/add"
+        buttonText="Try Again"
+      />
+    );
+
   if (loading)
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="300px">
         <CircularProgress />
-      </Box>
-    );
-
-  if (showSuccess)
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="300px">
-        <Alert severity="success" sx={{ width: "100%", maxWidth: 400 }}>
-          Student Registered Successfully! Redirecting...
-        </Alert>
       </Box>
     );
 
@@ -272,7 +300,7 @@ const AddStudent = () => {
             </Box>
 
             {/* 3-Column Grid Layout */}
-            <Grid container spacing={3} sx={{ width: '100%', maxWidth: '100%'}}>
+            <Grid container spacing={3} sx={{ width: '100%', maxWidth: '100%' }}>
               {/* Column 1: Personal & Basic Info */}
               <Grid item xs={12} md={4} sx={{ width: '30%' }}>
                 <Stack spacing={3}>
@@ -417,7 +445,7 @@ const AddStudent = () => {
                     value={formData.sslcMark}
                     onChange={handleChange}
                     error={errors.sslcMark}
-                    inputProps={{ min: 0, max: 100, step: 0.01 }}
+                    inputProps={{ min: 0, max: 500, step: 0.01 }}
                     sx={inputStyle}
                   />
                 </Stack>
@@ -434,7 +462,7 @@ const AddStudent = () => {
                     value={formData.hscMark}
                     onChange={handleChange}
                     error={errors.hscMark}
-                    inputProps={{ min: 0, max: 100, step: 0.01 }}
+                    inputProps={{ min: 0, max: 600, step: 0.01 }}
                     sx={inputStyle}
                   />
                   <TextField
@@ -479,6 +507,7 @@ const AddStudent = () => {
                     name="totalFee"
                     type="number"
                     fullWidth
+                    disabled
                     value={formData.totalFee}
                     onChange={handleChange}
                     error={errors.totalFee}
@@ -502,7 +531,7 @@ const AddStudent = () => {
                     onChange={handleChange}
                     error={errors.comments}
                     placeholder="Enter any additional notes or comments about the student..."
-                    sx={{width:800}}
+                    sx={{ width: 800 }}
                   />
                 </Grid>
 
@@ -511,9 +540,9 @@ const AddStudent = () => {
                   <Box
                     sx={{
                       height: '100%',
-                      width : "100%",
+                      width: "100%",
                       display: "flex",
-                      flexDirection : "row-reverse",
+                      flexDirection: "row-reverse",
                       gap: 2,
                       justifyContent: "center",
                     }}

@@ -159,7 +159,7 @@ const AddCourse = () => {
                   value={formData.instructor}
                   onChange={handleChange}
                   error={errors.instructor}
-                  sx={inputStyle}
+                  sx={{width : 190}}
                 >
                   {instructorOptions.map((opt) => (
                     <MenuItem key={opt} value={opt}>

@@ -3,11 +3,11 @@ import axios from "axios";
 
 const API_URL = "http://localhost:8080";
 
-//  Thunks
+/* ================= THUNKS ================= */
 
-// Fetch all studs
+// Fetch students
 export const fetchStudents = createAsyncThunk(
-  "students/fetchStudents",
+  "students/fetch",
   async (_, { rejectWithValue }) => {
     try {
       const res = await axios.get(`${API_URL}/students`);
@@ -18,9 +18,9 @@ export const fetchStudents = createAsyncThunk(
   }
 );
 
-// Add new student
+// Add student
 export const addStudent = createAsyncThunk(
-  "students/addStudent",
+  "students/add",
   async (studentData, { rejectWithValue }) => {
     try {
       const res = await axios.post(`${API_URL}/students`, studentData);
@@ -33,50 +33,53 @@ export const addStudent = createAsyncThunk(
 
 // Edit student
 export const editStudent = createAsyncThunk(
-  "students/editStudent",
-  async (updatedStudent, { rejectWithValue }) => {
+  "students/edit",
+  async (student, { rejectWithValue }) => {
     try {
-      const { data } = await axios.put(
-        `${API_URL}/students/${updatedStudent.id}`,
-        updatedStudent
+      const res = await axios.put(
+        `${API_URL}/students/${student.id}`,
+        student
       );
-      return data; // return updated student
-    } catch (err) {
-      return rejectWithValue(
-        err.response?.data?.message || err.message
-      );
-    }
-  }
-);
-
-
-// Delete student
-export const deleteStudent = createAsyncThunk(
-  "students/deleteStudent",
-  async (id, { rejectWithValue, dispatch }) => {
-    try {
-      await axios.delete(`${API_URL}/students/${id}`);
-      dispatch(fetchStudents());
+      return res.data;
     } catch (err) {
       return rejectWithValue(err.message);
     }
   }
 );
 
-// Slice
+// Delete student
+export const deleteStudent = createAsyncThunk(
+  "students/delete",
+  async (id, { rejectWithValue }) => {
+    try {
+      await axios.delete(`${API_URL}/students/${id}`);
+      return id;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+/* ================= SLICE ================= */
 
 const studentSlice = createSlice({
   name: "students",
   initialState: {
     students: [],
     loading: false,
-    error: null,
     success: false,
+    error: null,
   },
-  reducers: {},
+  reducers: {
+    resetStatus: (state) => {
+      state.success = false;
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
-      // Fetch students
+
+      /* FETCH */
       .addCase(fetchStudents.pending, (state) => {
         state.loading = true;
       })
@@ -89,51 +92,44 @@ const studentSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Add student
-      .addCase(addStudent.pending, (state, action) => {
+      /* ADD */
+      .addCase(addStudent.pending, (state) => {
         state.loading = true;
-
-        const index = state.students.findIndex(
-          (s) => s.id === action.payload.id
-        );
-
-        if (index !== -1) {
-          state.students[index] = action.payload;
-        }
+        state.error = null;
+        state.success = false;
       })
       .addCase(addStudent.fulfilled, (state, action) => {
         state.loading = false;
         state.students.push(action.payload);
+        state.success = true;
       })
       .addCase(addStudent.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
-      // Edit student
-      .addCase(editStudent.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(editStudent.fulfilled, (state) => {
+      /* EDIT */
+      .addCase(editStudent.fulfilled, (state, action) => {
+        const index = state.students.findIndex(
+          (s) => s.id === action.payload.id
+        );
+        if (index !== -1) {
+          state.students[index] = action.payload;
+        }
+        state.success = true;
         state.loading = false;
-      })
-      .addCase(editStudent.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
       })
 
-      // Delete student
-      .addCase(deleteStudent.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(deleteStudent.fulfilled, (state) => {
+      /* DELETE */
+      .addCase(deleteStudent.fulfilled, (state, action) => {
+        state.students = state.students.filter(
+          (s) => s.id !== action.payload
+        );
+        state.success = true;
         state.loading = false;
-      })
-      .addCase(deleteStudent.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
       });
   },
 });
 
+export const { resetStatus } = studentSlice.actions;
 export default studentSlice.reducer;

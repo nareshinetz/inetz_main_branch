@@ -19,6 +19,7 @@ import { ArrowBack } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchStudents } from "../redux/slices/studentSlice";
+import StatusResult from "../generic/Status";
 
 const paymentMethods = ["Cash", "GPay", "NEFT"];
 
@@ -38,6 +39,8 @@ const AddPayment = () => {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [transactionId, setTransactionId] = useState("");
   const [error, setError] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [formError, setFormError] = useState("");
 
   useEffect(() => {
     dispatch(fetchStudents());
@@ -87,20 +90,43 @@ const AddPayment = () => {
 
   const pendingFee = totalFee - discount - amountPaid;
 
+  // ✅ StatusResult renders FIRST - handles success/error states
+  if (showSuccess)
+    return (
+      <StatusResult
+        type="success"
+        title="Payment Successful"
+        message="Payment has been recorded successfully."
+        redirectTo="/transacitonhistory"
+        buttonText="View Transactions"
+      />
+    );
+
+  if (error)
+    return (
+      <StatusResult
+        type="error"
+        title="Payment Failed"
+        message="Unable to process payment. Please try again."
+        redirectTo="/payments/add"
+        buttonText="Retry Payment"
+      />
+    );
+
   /* ================= SAVE PAYMENT ================= */
   const handlePayment = async () => {
     if (!payAmount || payAmount <= 0) {
-      setError("Enter valid payment amount");
+      setFormError("Please enter a valid payment amount");
       return;
     }
 
     if (!paymentMethod) {
-      setError("Select payment method");
+      setFormError("Please select a payment method");
       return;
     }
 
     if (discount > totalFee) {
-      setError("Discount cannot exceed total fee");
+      setFormError("Discount cannot exceed total fee");
       return;
     }
 
@@ -108,25 +134,31 @@ const AddPayment = () => {
       (paymentMethod === "GPay" || paymentMethod === "NEFT") &&
       !transactionId
     ) {
-      setError("Enter transaction ID for online payment");
+      setFormError("Transaction ID is required for GPay/NEFT");
       return;
     }
 
-    await fetch("http://localhost:8080/payments", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        studentId,
-        amount: Number(payAmount),
-        paymentMethod,
-        transactionId:
-          paymentMethod === "Cash" ? null : transactionId,
-        date: new Date().toLocaleDateString(),
-      }),
-    });
+    try {
+      const response = await fetch("http://localhost:8080/payments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          studentId,
+          amount: Number(payAmount),
+          paymentMethod,
+          transactionId: paymentMethod === "Cash" ? null : transactionId,
+          date: new Date().toLocaleDateString(),
+        }),
+      });
 
-    alert("Payment recorded successfully");
-    navigate(-1);
+      if (response.ok) {
+        setShowSuccess(true); // ✅ Triggers StatusResult success
+      } else {
+        throw new Error("Payment failed");
+      }
+    } catch (err) {
+      setError("Failed to record payment. Please try again."); // ✅ Triggers StatusResult error
+    }
   };
 
   /* ================= INFO ITEM ================= */
@@ -152,32 +184,21 @@ const AddPayment = () => {
       </Button>
 
       <Breadcrumbs
-  separator={<NavigateNextIcon fontSize="small" />}
-  sx={{ mb: 2 }}
->
-  <Link
-    underline="hover"
-    color="inherit"
-    sx={{ cursor: "pointer" }}
-    onClick={() => navigate("/")}
-  >
-    Dashboard
-  </Link>
-
-  <Link
-    underline="hover"
-    color="inherit"
-    sx={{ cursor: "pointer" }}
-    onClick={() => navigate("/payments")}
-  >
-    Payments
-  </Link>
-
-  <Typography color="text.primary" fontWeight={600}>
-    Add Payment
-  </Typography>
-</Breadcrumbs>
-
+        separator={<NavigateNextIcon fontSize="small" />}
+        sx={{ mb: 2 }}
+      >
+        <Link
+          underline="hover"
+          color="inherit"
+          sx={{ cursor: "pointer" }}
+          onClick={() => navigate("/dashboard")}
+        >
+          Payments
+        </Link>
+        <Typography color="text.primary" fontWeight={600}>
+          Add Payment
+        </Typography>
+      </Breadcrumbs>
 
       <Card variant="outlined">
         <CardContent sx={{ p: { xs: 2, md: 4 } }}>
@@ -188,9 +209,14 @@ const AddPayment = () => {
             Fetch student and record payment
           </Typography>
 
-          {error && (
-            <Alert severity="error" sx={{ mb: 3 }}>
-              {error}
+          {/* ✅ Form validation errors */}
+          {formError && (
+            <Alert 
+              severity="warning" 
+              sx={{ mb: 3 }}
+              onClose={() => setFormError("")}
+            >
+              {formError}
             </Alert>
           )}
 
@@ -294,7 +320,7 @@ const AddPayment = () => {
 
                 <Grid item xs={12} sm={4}>
                   <TextField
-                    sx={{ width: 190 }}
+                    fullWidth  // ✅ Fixed width issue
                     select
                     label="Payment Method"
                     value={paymentMethod}
@@ -313,17 +339,17 @@ const AddPayment = () => {
 
                 {(paymentMethod === "GPay" ||
                   paymentMethod === "NEFT") && (
-                    <Grid item xs={12} sm={4}>
-                      <TextField
-                        fullWidth
-                        label="Transaction ID"
-                        value={transactionId}
-                        onChange={(e) =>
-                          setTransactionId(e.target.value)
-                        }
-                      />
-                    </Grid>
-                  )}
+                  <Grid item xs={12} sm={4}>
+                    <TextField
+                      fullWidth
+                      label="Transaction ID"
+                      value={transactionId}
+                      onChange={(e) =>
+                        setTransactionId(e.target.value)
+                      }
+                    />
+                  </Grid>
+                )}
               </Grid>
 
               <Button

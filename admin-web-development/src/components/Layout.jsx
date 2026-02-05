@@ -351,7 +351,7 @@ const Layout = () => {
               <ListItemIcon sx={{ color: "inherit" }}>
                 <PeopleIcon />
               </ListItemIcon>
-              <ListItemText primary="Transaction" />
+              <ListItemText primary="Payment" />
               {transactionOpen ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
           </ListItem>
