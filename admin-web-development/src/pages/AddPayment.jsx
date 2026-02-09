@@ -16,18 +16,23 @@ import {
   Alert,
 } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation} from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchStudents } from "../redux/slices/studentSlice";
-import StatusResult from "../generic/Status";
+import StatusModal from "../generic/StatusModel";
+
+
+
 
 const paymentMethods = ["Cash", "GPay", "NEFT"];
 
 const AddPayment = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
 
-  const { students } = useSelector((state) => state.students);
+
+  const { students,loading } = useSelector((state) => state.students);
 
   const [studentId, setStudentId] = useState("");
   const [student, setStudent] = useState(null);
@@ -39,8 +44,29 @@ const AddPayment = () => {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [transactionId, setTransactionId] = useState("");
   const [error, setError] = useState("");
-  const [showSuccess, setShowSuccess] = useState(false);
+
+
+const [statusModal, setStatusModal] = useState({
+  open: false,
+  type: "success",
+  title: "",
+  message: "",
+});
+
   const [formError, setFormError] = useState("");
+
+  useEffect(() => {
+  if (location.state?.studentId) {
+    setStudentId(location.state.studentId);
+  }
+}, [location.state]);
+
+useEffect(() => {
+  if (studentId && students.length > 0) {
+    handleFetchStudent();
+  }
+}, [studentId, students]);
+
 
   useEffect(() => {
     dispatch(fetchStudents());
@@ -82,84 +108,72 @@ const AddPayment = () => {
 
   /* ================= CALCULATIONS ================= */
   const totalFee = course?.totalFee || 0;
+  const actualFee = course?.totalFee - discount;
 
   const amountPaid = payments.reduce(
     (sum, p) => sum + Number(p.amount),
     0
   );
 
-  const pendingFee = totalFee - discount - amountPaid;
-
-  // ✅ StatusResult renders FIRST - handles success/error states
-  if (showSuccess)
-    return (
-      <StatusResult
-        type="success"
-        title="Payment Successful"
-        message="Payment has been recorded successfully."
-        redirectTo="/transacitonhistory"
-        buttonText="View Transactions"
-      />
-    );
-
-  if (error)
-    return (
-      <StatusResult
-        type="error"
-        title="Payment Failed"
-        message="Unable to process payment. Please try again."
-        redirectTo="/payments/add"
-        buttonText="Retry Payment"
-      />
-    );
+  const pendingAmount = totalFee - discount - amountPaid;
 
   /* ================= SAVE PAYMENT ================= */
-  const handlePayment = async () => {
-    if (!payAmount || payAmount <= 0) {
-      setFormError("Please enter a valid payment amount");
-      return;
-    }
+ const handlePayment = async () => {
+  if (!payAmount || payAmount <= 0) {
+    setFormError("Please enter a valid payment amount");
+    return;
+  }
 
-    if (!paymentMethod) {
-      setFormError("Please select a payment method");
-      return;
-    }
+  if (!paymentMethod) {
+    setFormError("Please select a payment method");
+    return;
+  }
 
-    if (discount > totalFee) {
-      setFormError("Discount cannot exceed total fee");
-      return;
-    }
+  if (discount > totalFee) {
+    setFormError("Discount cannot exceed total fee");
+    return;
+  }
 
-    if (
-      (paymentMethod === "GPay" || paymentMethod === "NEFT") &&
-      !transactionId
-    ) {
-      setFormError("Transaction ID is required for GPay/NEFT");
-      return;
-    }
+  if (
+    (paymentMethod === "GPay" || paymentMethod === "NEFT") &&
+    !transactionId
+  ) {
+    setFormError("Transaction ID is required for GPay/NEFT");
+    return;
+  }
 
-    try {
-      const response = await fetch("http://localhost:8080/payments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          studentId,
-          amount: Number(payAmount),
-          paymentMethod,
-          transactionId: paymentMethod === "Cash" ? null : transactionId,
-          date: new Date().toLocaleDateString(),
-        }),
-      });
+  try {
+    const response = await fetch("http://localhost:8080/payments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        studentId,
+        amount: Number(payAmount),
+        paymentMethod : paymentMethod,
+        transactionId: paymentMethod === "Cash" ? null : transactionId,
+        totalFee: totalFee,
+        pendingAmount:pendingAmount,
+        date: new Date().toLocaleDateString(),
+      }),
+    });
 
-      if (response.ok) {
-        setShowSuccess(true); // ✅ Triggers StatusResult success
-      } else {
-        throw new Error("Payment failed");
-      }
-    } catch (err) {
-      setError("Failed to record payment. Please try again."); // ✅ Triggers StatusResult error
-    }
-  };
+    if (!response.ok) throw new Error();
+
+    setStatusModal({
+      open: true,
+      type: "success",
+      title: "Payment Successful",
+      message: "Payment has been recorded successfully.",
+    });
+  } catch {
+    setStatusModal({
+      open: true,
+      type: "error",
+      title: "Payment Failed",
+      message: "Unable to process payment. Please try again.",
+    });
+  }
+};
 
   /* ================= INFO ITEM ================= */
   const InfoItem = ({ label, value, highlight }) => (
@@ -172,6 +186,11 @@ const AddPayment = () => {
       </Typography>
     </Stack>
   );
+
+  if (loading) {
+  return <Typography>Loading students...</Typography>;
+}
+
 
   return (
     <Box sx={{ maxWidth: 1100, mx: "auto", px: 2 }}>
@@ -290,12 +309,15 @@ const AddPayment = () => {
                   />
                 </Grid>
                 <Grid item xs={12} sm={3}>
+                  <InfoItem label="Actual Amount" value={`₹${actualFee}`} />
+                </Grid>
+                <Grid item xs={12} sm={3}>
                   <InfoItem label="Paid Amount" value={`₹${amountPaid}`} />
                 </Grid>
                 <Grid item xs={12} sm={3}>
                   <InfoItem
                     label="Pending Amount"
-                    value={`₹${pendingFee}`}
+                    value={`₹${pendingAmount}`}
                     highlight
                   />
                 </Grid>
@@ -320,7 +342,7 @@ const AddPayment = () => {
 
                 <Grid item xs={12} sm={4}>
                   <TextField
-                    fullWidth  // ✅ Fixed width issue
+                    sx = {{width : 200 }}  // ✅ Fixed width issue
                     select
                     label="Payment Method"
                     value={paymentMethod}
@@ -365,6 +387,19 @@ const AddPayment = () => {
           )}
         </CardContent>
       </Card>
+      <StatusModal
+  open={statusModal.open}
+  type={statusModal.type}
+  title={statusModal.title}
+  message={statusModal.message}
+  onClose={() => {
+    setStatusModal({ ...statusModal, open: false });
+    if (statusModal.type === "success") {
+      navigate("/transactionhistory");
+    }
+  }}
+/>
+
     </Box>
   );
 };

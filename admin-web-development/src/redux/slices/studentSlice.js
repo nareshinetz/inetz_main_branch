@@ -31,21 +31,48 @@ export const addStudent = createAsyncThunk(
   }
 );
 
-// Edit student
-export const editStudent = createAsyncThunk(
-  "students/edit",
-  async (student, { rejectWithValue }) => {
+// // Edit student
+// export const editStudent = createAsyncThunk(
+//   "students/edit",
+//   async (student, { rejectWithValue }) => {
+//     try {
+//       const res = await axios.put(
+//         `${API_URL}/students/${student.id}`,
+//         student
+//       );
+//       return res.data;
+//     } catch (err) {
+//       return rejectWithValue(err.message);
+//     }
+//   }
+// );
+
+// Fetch student by ID
+export const fetchStudentById = createAsyncThunk(
+  "students/fetchById",
+  async (id, { rejectWithValue }) => {
     try {
-      const res = await axios.put(
-        `${API_URL}/students/${student.id}`,
-        student
-      );
-      return res.data;
+      const response = await axios.get(`${API_URL}/students/${id}`);
+      return response.data;
     } catch (err) {
       return rejectWithValue(err.message);
     }
   }
 );
+
+// Update student
+export const updateStudent = createAsyncThunk(
+  "students/update",
+  async ({ id, ...studentData }, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(`${API_URL}/students/${id}`, studentData);
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
 
 // Delete student
 export const deleteStudent = createAsyncThunk(
@@ -92,6 +119,42 @@ const studentSlice = createSlice({
         state.error = action.payload;
       })
 
+      /* FETCH BY ID */
+      .addCase(fetchStudentById.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchStudentById.fulfilled, (state, action) => {
+        state.loading = false;
+        // Optionally update the student in the array
+        const index = state.students.findIndex(s => s.id === action.payload.id);
+        if (index === -1) {
+          state.students.push(action.payload);
+        }
+      })
+      .addCase(fetchStudentById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      /* UPDATE */
+      .addCase(updateStudent.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(updateStudent.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.students.findIndex(s => s.id === action.payload.id);
+        if (index !== -1) {
+          state.students[index] = action.payload;
+        }
+        state.success = true;
+      })
+      .addCase(updateStudent.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
       /* ADD */
       .addCase(addStudent.pending, (state) => {
         state.loading = true;
@@ -109,16 +172,16 @@ const studentSlice = createSlice({
       })
 
       /* EDIT */
-      .addCase(editStudent.fulfilled, (state, action) => {
-        const index = state.students.findIndex(
-          (s) => s.id === action.payload.id
-        );
-        if (index !== -1) {
-          state.students[index] = action.payload;
-        }
-        state.success = true;
-        state.loading = false;
-      })
+      // .addCase(editStudent.fulfilled, (state, action) => {
+      //   const index = state.students.findIndex(
+      //     (s) => s.id === action.payload.id
+      //   );
+      //   if (index !== -1) {
+      //     state.students[index] = action.payload;
+      //   }
+      //   state.success = true;
+      //   state.loading = false;
+      // })
 
       /* DELETE */
       .addCase(deleteStudent.fulfilled, (state, action) => {

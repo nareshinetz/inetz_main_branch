@@ -19,11 +19,13 @@ import ListStudents from "./pages/ListStudents";
 import Login from "./pages/Login";
 import AddLeads from "./pages/AddLeads";
 import ListLead from "./pages/ListLead";
-import EditStudent from "./pages/EditStudent";
 import StudentDetails from "./pages/StudentDetails";
 import AddPayment from "./pages/AddPayment";
 import EditStaff from "./pages/EditStaff";
 import AddCourse from "./pages/AddCourse";
+
+import TransactionHistory from "./pages/TransactionHistory";
+import TransactionDetails from "./pages/ViewTransactions";
 
 function App() {
   return (
@@ -41,12 +43,15 @@ function App() {
             <Route path="/staff/edit/:id" element={<EditStaff />} />
             <Route path="/students/add" element={<AddStudent />} />
             <Route path="/students/list" element={<ListStudents />} />
-            <Route path="/students/edit/:id" element={<EditStudent />} />
+            <Route path="/students/edit/:id" element={<AddStudent />} />
             <Route path="/students/view/:id" element={<StudentDetails />} />
             <Route path="/leads/add" element={<AddLeads />} />
             <Route path="/leads/list" element={<ListLead />} />
-            <Route path="/addcourse" element={<AddCourse/>} />
-            <Route path="/addpayment" element={<AddPayment/>} />
+            <Route path="/addcourse" element={<AddCourse />} />
+            <Route path="/addpayment" element={<AddPayment />} />
+            <Route path="/transactionhistory" element={<TransactionHistory />} />
+            <Route path="/transactions/view/:id"element={<TransactionDetails />}/>
+
 
           </Route>
         </Routes>
