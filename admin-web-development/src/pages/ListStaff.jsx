@@ -38,16 +38,19 @@ const ListStaff = () => {
     navigate(`/staff/view/${id}`);
   };
 
-  const filteredStaff = staff.filter((member) => {
-    const search = searchQuery.toLowerCase();
+ const filteredStaff = useMemo(() => {
+  if (!Array.isArray(staff)) return [];
 
-    return (
-      (member.fullName || "").toLowerCase().includes(search) ||
-      (member.emailId || "").toLowerCase().includes(search) ||
-      (member.phoneNumber || "").toLowerCase().includes(search) ||
-      (member.skills || "").toLowerCase().includes(search)
-    );
-  });
+  const search = searchQuery.toLowerCase();
+
+  return staff.filter((member) => (
+    (member.fullName || "").toLowerCase().includes(search) ||
+    (member.emailId || "").toLowerCase().includes(search) ||
+    (member.phoneNumber || "").toLowerCase().includes(search) ||
+    (member.skills || "").toLowerCase().includes(search)
+  ));
+}, [staff, searchQuery]);
+
 
   const staffColumns = useMemo(
     () => [

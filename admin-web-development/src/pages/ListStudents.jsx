@@ -108,7 +108,6 @@ useEffect(() => {
         ),
       },
       { headerName: "Name", field: "studentName", sortable: true, filter: true },
-      { headerName: "Email", field: "emailId", filter: true },
       { headerName: "Phone", field: "phoneNumber" },
       { headerName: "Program", field: "programType", filter: true },
       { headerName: "Status", field: "status", filter: true },
@@ -195,11 +194,7 @@ useEffect(() => {
           </Box>
         </Box>
 
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error.message ? error.message : JSON.stringify(error)}
-          </Alert>
-        )}
+
 
         <AgGridTable
           rowData={students || []}

@@ -173,7 +173,7 @@ const actualFee = totalFee - discount;
 
 
   return (
-    <Box sx={{ maxWidth: 1100, mx: "auto", px: 2 }}>
+    <Box sx={{ mb: 4 }}>
       <Button
         startIcon={<ArrowBack />}
         onClick={() => navigate(-1)}
@@ -199,8 +199,14 @@ const actualFee = totalFee - discount;
         </Typography>
       </Breadcrumbs>
 
-      <Card variant="outlined">
-        <CardContent sx={{ p: { xs: 2, md: 4 } }}>
+      <Card variant="outlined"
+      sx={{
+          borderRadius: 3,
+          border: "1px solid",
+          borderColor: "divider",
+          overflow: "hidden",
+        }}>
+        <CardContent sx={{ p: { xs: 4, sm: 4, md: 5 } }}>
           <Typography variant="h5" fontWeight={700} mb={1}>
             Student Payment
           </Typography>
@@ -220,7 +226,11 @@ const actualFee = totalFee - discount;
           )}
 
           {/* ================= STUDENT ID ================= */}
-          <Grid container spacing={3} mb={4}>
+          <Grid container spacing={3} mb={4} 
+          sx={{
+      display: "flex",          // enable flex// horizontal center
+      alignItems: "center",     // vertical center          // take full Grid item height
+    }}>
             <Grid item xs={12} sm={8}>
               <TextField
                 fullWidth
@@ -234,6 +244,14 @@ const actualFee = totalFee - discount;
                 fullWidth
                 variant="contained"
                 size="large"
+                sx={{
+                          borderRadius: 2,
+                          py: 1.5,
+                          fontWeight: 700,
+                          "&:hover": {
+                            boxShadow: "0 12px 32px rgba(25,118,210,0.45)",
+                          },
+                        }}
                 onClick={handleFetchStudent}
               >
                 Fetch Student
@@ -362,7 +380,7 @@ const actualFee = totalFee - discount;
                 sx={{ mt: 4 }}
                 onClick={handlePayment}
               >
-                Record Payment
+                Add Payment
               </Button>
             </>
           )}

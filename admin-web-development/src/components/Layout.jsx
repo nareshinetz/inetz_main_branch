@@ -613,7 +613,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../redux/slices/userSlice";
 import BreadcrumbsNav from "../generic/BreadcrumbsNav";
 
-const drawerWidth = 280;
+const drawerWidth = 300;
 
 const Layout = () => {
   const theme = useTheme();
@@ -812,7 +812,7 @@ const Layout = () => {
             <ListItemIcon sx={{ color: "inherit" }}>
               <SchoolIcon />
             </ListItemIcon>
-            <ListItemText primary="Students" />
+            <ListItemText primary="Students Management" />
             {studentsOpen ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
         </ListItem>

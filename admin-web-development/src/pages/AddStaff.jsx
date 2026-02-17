@@ -9,10 +9,9 @@ import {
   Alert,
   CircularProgress,
   Stack,
+  TextField,
 } from "@mui/material";
-import {
-  Person as PersonIcon,
-} from "@mui/icons-material";
+import { Person as PersonIcon } from "@mui/icons-material";
 import CustomInput from "../generic/Input";
 import CustomButton from "../generic/Button";
 import { useNavigate } from "react-router-dom";
@@ -78,7 +77,6 @@ const selectProps = {
 
 const AddStaff = () => {
   const navigate = useNavigate();
-
   const [formData, setFormData] = useState({
     staffName: "",
     emailId: "",
@@ -166,7 +164,7 @@ const AddStaff = () => {
     );
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ mb: 4 }}>
       {/* Page Header */}
       <Box sx={{ mb: 4 }}>
         <Typography
@@ -183,7 +181,7 @@ const AddStaff = () => {
         </Typography>
       </Box>
 
-      {/* WHITE BACKGROUND CARD - FULL WIDTH LIKE STUDENT FORM */}
+      {/* CARD */}
       <Card
         elevation={0}
         sx={{
@@ -191,14 +189,12 @@ const AddStaff = () => {
           border: "1px solid",
           borderColor: "divider",
           overflow: "hidden",
-          width: "100%",
-          maxWidth: "none"
         }}
       >
         <CardContent sx={{ p: { xs: 4, sm: 4, md: 5 } }}>
           <form onSubmit={handleSubmit}>
             {/* Section Header */}
-            <Box sx={{ mb: 4, display: "flex", alignItems: "center", gap: 2 }}>
+            {/* <Box sx={{ mb: 4, display: "flex", alignItems: "center", gap: 2 }}>
               <Box
                 sx={{
                   width: 48,
@@ -220,198 +216,187 @@ const AddStaff = () => {
                   Fill all fields to complete staff registration
                 </Typography>
               </Box>
-            </Box>
+            </Box> */}
 
-            {/* PERFECT 3-COLUMN LAYOUT - FULL WIDTH EVENLY */}
-            <Grid 
-              container 
-              spacing={3} 
-              sx={{ 
-                width: '100%',
-                mb: 6 
-              }}
-            >
-              {/* COLUMN 1 - 33.33% WIDTH */}
-              <Grid item xs={12} md={4} sx={{ width: '100%' }}>
-                <Stack spacing={3}>
-                  <CustomInput
-                    sx={inputStyle}
-                    fullWidth
-                    label="Full Name *"
-                    name="staffName"
-                    value={formData.staffName}
-                    onChange={handleChange}
-                    error={errors.staffName}
-                    required
-                  />
-                  <CustomInput
-                    sx={inputStyle}
-                    fullWidth
-                    label="Phone Number *"
-                    name="phoneNumber"
-                    value={formData.phoneNumber}
-                    onChange={handleChange}
-                    error={errors.phoneNumber}
-                    required
-                  />
-                  <CustomInput
-                    sx={inputStyle}
-                    fullWidth
-                    label="Aadhar Card *"
-                    name="aadharCard"
-                    value={formData.aadharCard}
-                    onChange={handleChange}
-                    error={errors.aadharCard}
-                    required
-                  />
-                  <CustomInput
-                    sx={inputStyle}
-                    fullWidth
-                    label="City *"
-                    name="cityName"
-                    value={formData.cityName}
-                    onChange={handleChange}
-                    error={errors.cityName}
-                    required
-                  />
-                </Stack>
-              </Grid>
+            {/* 3-COLUMN GRID */}
+            {/* 3-COLUMN GRID */}
+<Grid container spacing={3} sx={{ width: '100%', maxWidth: '100%' }}>
+  {/* COLUMN 1 */}
+  <Grid item xs={12} md={4} sx={{ width: '30%' }}>
+    <Stack spacing={3}>
+      <TextField
+        sx={inputStyle}
+        fullWidth
+        label="Full Name"
+        name="staffName"
+        value={formData.staffName}
+        onChange={handleChange}
+        error={errors.staffName}
+        required
+      />
+      <TextField
+        sx={inputStyle}
+        fullWidth
+        label="Phone Number"
+        name="phoneNumber"
+        value={formData.phoneNumber}
+        onChange={handleChange}
+        error={errors.phoneNumber}
+        required
+      />
+      <TextField
+        sx={inputStyle}
+        fullWidth
+        label="Aadhar Card"
+        name="aadharCard"
+        value={formData.aadharCard}
+        onChange={handleChange}
+        error={errors.aadharCard}
+        required
+      />
+      <TextField
+        sx={inputStyle}
+        fullWidth
+        label="City"
+        name="cityName"
+        value={formData.cityName}
+        onChange={handleChange}
+        error={errors.cityName}
+        required
+      />
+    </Stack>
+  </Grid>
 
-              {/* COLUMN 2 - 33.33% WIDTH */}
-              <Grid item xs={12} md={4} sx={{ width: '100%' }}>
-                <Stack spacing={3}>
-                  <CustomInput
-                    sx={inputStyle}
-                    fullWidth
-                    label="Email Address *"
-                    name="emailId"
-                    type="email"
-                    value={formData.emailId}
-                    onChange={handleChange}
-                    error={errors.emailId}
-                    required
-                  />
-                  <CustomInput
-                    sx={inputStyle}
-                    fullWidth
-                    label="PAN Card *"
-                    name="panCard"
-                    value={formData.panCard}
-                    onChange={handleChange}
-                    error={errors.panCard}
-                    required
-                  />
-                  <CustomInput
-                    sx={inputStyle}
-                    select
-                    fullWidth
-                    label="Role *"
-                    name="roleName"
-                    value={formData.roleName}
-                    onChange={handleChange}
-                    error={errors.roleName}
-                    required
-                    SelectProps={selectProps}
-                  >
-                    {roles.map((role) => (
-                      <MenuItem key={role.id} value={role.name}>
-                        {role.name}
-                      </MenuItem>
-                    ))}
-                  </CustomInput>
-                  <CustomInput
-                    sx={inputStyle}
-                    fullWidth
-                    label="Highest Degree *"
-                    name="degree"
-                    value={formData.degree}
-                    onChange={handleChange}
-                    error={errors.degree}
-                    required
-                  />
-                </Stack>
-              </Grid>
+  {/* COLUMN 2 */}
+  <Grid item xs={12} md={4} sx={{ width: '30%' }}>
+    <Stack spacing={3}>
+      <TextField
+        sx={inputStyle}
+        fullWidth
+        label="Email Address"
+        name="emailId"
+        type="email"
+        value={formData.emailId}
+        onChange={handleChange}
+        error={errors.emailId}
+        required
+      />
+      <TextField
+        sx={inputStyle}
+        fullWidth
+        label="PAN Card"
+        name="panCard"
+        value={formData.panCard}
+        onChange={handleChange}
+        error={errors.panCard}
+        required
+      />
+      <TextField
+        sx={inputStyle}
+        select
+        fullWidth
+        label="Role"
+        name="roleName"
+        value={formData.roleName}
+        onChange={handleChange}
+        error={errors.roleName}
+        required
+        SelectProps={selectProps}
+      >
+        {roles.map((role) => (
+          <MenuItem key={role.id} value={role.name}>
+            {role.name}
+          </MenuItem>
+        ))}
+      </TextField>
+      <TextField
+        sx={inputStyle}
+        fullWidth
+        label="Highest Degree"
+        name="degree"
+        value={formData.degree}
+        onChange={handleChange}
+        error={errors.degree}
+        required
+      />
+    </Stack>
+  </Grid>
 
-              {/* COLUMN 3 - 33.33% WIDTH */}
-              <Grid item xs={12} md={4} sx={{ width: '100%' }}>
-                <Stack spacing={3}>
-                  <CustomInput
-                    sx={inputStyle}
-                    select
-                    fullWidth
-                    label="Skills *"
-                    name="skills"
-                    value={formData.skills}
-                    onChange={handleChange}
-                    error={errors.skills}
-                    required
-                    SelectProps={selectProps}
-                  >
-                    {skills.map((skill) => (
-                      <MenuItem key={skill.id} value={skill.name}>
-                        {skill.name}
-                      </MenuItem>
-                    ))}
-                  </CustomInput>
-                  <CustomInput
-                    sx={inputStyle}
-                    fullWidth
-                    type="date"
-                    label="Joining Date *"
-                    name="joiningDate"
-                    value={formData.joiningDate}
-                    onChange={handleChange}
-                    error={errors.joiningDate}
-                    required
-                    InputLabelProps={{ shrink: true }}
-                  />
-                  <CustomInput
-                    sx={inputStyle}
-                    fullWidth
-                    label="Monthly Salary *"
-                    name="salary"
-                    type="number"
-                    value={formData.salary}
-                    onChange={handleChange}
-                    error={errors.salary}
-                    required
-                    InputProps={{
-                      startAdornment: "₹"
-                    }}
-                  />
-                  <CustomInput
-                    sx={inputStyle}
-                    fullWidth
-                    label="Original Certificate *"
-                    name="originalCertificate"
-                    value={formData.originalCertificate}
-                    onChange={handleChange}
-                    error={errors.originalCertificate}
-                    required
-                    multiline
-                    rows={3}
-                  />
-                </Stack>
-              </Grid>
-            </Grid>
+  {/* COLUMN 3 */}
+  <Grid item xs={12} md={4} sx={{ width: '30%' }}>
+    <Stack spacing={3}>
+      <TextField
+        sx={inputStyle}
+        select
+        fullWidth
+        label="Skills"
+        name="skills"
+        value={formData.skills}
+        onChange={handleChange}
+        error={errors.skills}
+        required
+        SelectProps={selectProps}
+      >
+        {skills.map((skill) => (
+          <MenuItem key={skill.id} value={skill.name}>
+            {skill.name}
+          </MenuItem>
+        ))}
+      </TextField>
+      <TextField
+        sx={inputStyle}
+        fullWidth
+        type="date"
+        label="Joining Date"
+        name="joiningDate"
+        value={formData.joiningDate}
+        onChange={handleChange}
+        error={errors.joiningDate}
+        required
+        InputLabelProps={{ shrink: true }}
+      />
+      <TextField
+        sx={inputStyle}
+        fullWidth
+        label="Monthly Salary"
+        name="salary"
+        type="number"
+        value={formData.salary}
+        onChange={handleChange}
+        error={errors.salary}
+        required
+      />
+      <TextField
+        sx={inputStyle}
+        fullWidth
+        label="Original Certificate"
+        name="originalCertificate"
+        value={formData.originalCertificate}
+        onChange={handleChange}
+        error={errors.originalCertificate}
+        required
+        rows={3}
+      />
+    </Stack>
+  </Grid>
+</Grid>
 
-            {/* Action Buttons - SAME AS STUDENT FORM */}
-            <Box sx={{ mt: 4 }}>
-              <Grid container>
-                <Grid item xs={12} md={4}>
+
+            {/* Buttons centered like Student form */}
+            <Box sx={{ mt: 4 , width:"95%" }} >
+              <Grid container justifyContent="right">
+                <Grid item xs={12} md={6}>
                   <Box
                     sx={{
-                      height: '100%',
-                      width: '100%',
                       display: "flex",
-                      flexDirection: "row-reverse",
+                      flexDirection:"row-reverse",
                       gap: 2,
-                      justifyContent: "right",
+                      flexWrap: "wrap",
                     }}
                   >
                     <CustomButton
                       type="submit"
-                      label="Add Staff Member"
+                      label="SAVE"
                       sx={{
                         borderRadius: 2,
                         py: 1.5,

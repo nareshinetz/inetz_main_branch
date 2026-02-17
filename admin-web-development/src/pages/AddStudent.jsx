@@ -93,13 +93,13 @@ const AddStudent = () => {
   const { id } = useParams();
   const isEditMode = Boolean(id);
 
- const {
-  students,
-  selectedStudent,
-  loading,
-  error,
-  totalPages,
-} = useSelector((state) => state.students);
+  const {
+    students,
+    selectedStudent,
+    loading,
+    error,
+    totalPages,
+  } = useSelector((state) => state.students);
 
 
   const [statusModal, setStatusModal] = useState({
@@ -132,18 +132,18 @@ const AddStudent = () => {
     comments: "",
   });
 
-useEffect(() => {
-  if (isEditMode) {
-    dispatch(fetchStudentById(id))
-      .unwrap()
-      .then((student) => {
-        setFormData(student);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch student:", err);
-      });
-  }
-}, [dispatch, id, isEditMode]);
+  useEffect(() => {
+    if (isEditMode) {
+      dispatch(fetchStudentById(id))
+        .unwrap()
+        .then((student) => {
+          setFormData(student);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch student:", err);
+        });
+    }
+  }, [dispatch, id, isEditMode]);
 
 
 
@@ -176,38 +176,38 @@ useEffect(() => {
     "IoT": "C007",
   };
 
- const numberFields = ["sslcMark", "hscMark", "ugMark", "pgMark"];
+  const numberFields = ["sslcMark", "hscMark", "ugMark", "pgMark"];
 
-const handleChange = (e) => {
-  const { name, value } = e.target;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
 
-  setFormData((prev) => {
-    let updatedValue = value;
+    setFormData((prev) => {
+      let updatedValue = value;
 
 
-    // ✅ convert numeric fields
-    if (numberFields.includes(name)) {
-      updatedValue = value === "" ? null : Number(value);
+      // ✅ convert numeric fields
+      if (numberFields.includes(name)) {
+        updatedValue = value === "" ? null : Number(value);
+      }
+
+      const updated = {
+        ...prev,
+        [name]: updatedValue,
+      };
+
+      // ✅ auto-set course number
+      if (name === "courseName") {
+        updated.courseNumber = courseCodeMap[value] || "";
+      }
+
+      return updated;
+    });
+
+    // optional: clear field error
+    if (errors?.[name]) {
+      setErrors((prev) => ({ ...prev, [name]: false }));
     }
-
-    const updated = {
-      ...prev,
-      [name]: updatedValue,
-    };
-
-    // ✅ auto-set course number
-    if (name === "courseName") {
-      updated.courseNumber = courseCodeMap[value] || "";
-    }
-
-    return updated;
-  });
-
-  // optional: clear field error
-  if (errors?.[name]) {
-    setErrors((prev) => ({ ...prev, [name]: false }));
-  }
-};
+  };
 
 
   const requiredFields = [
@@ -233,7 +233,7 @@ const handleChange = (e) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -243,13 +243,13 @@ const handleChange = (e) => {
       let resultStudent;
 
       if (isEditMode) {
-  const { id: _, ...payload } = formData;
+        const { id: _, ...payload } = formData;
 
-  resultStudent = await dispatch(
-    updateStudent({ id :students.id, ...payload })
-  ).unwrap();
-}
-else {
+        resultStudent = await dispatch(
+          updateStudent({ id: students.id, ...payload })
+        ).unwrap();
+      }
+      else {
         resultStudent = await dispatch(addStudent(formData)).unwrap();
       }
 
@@ -279,18 +279,18 @@ else {
       </Box>
     );
 
- if (error)
-  return (
-    <Alert severity="error">
-      Failed to add student: {
-        typeof error === "string"
-          ? error
-          : error?.message ||
+  if (error)
+    return (
+      <Alert severity="error">
+        Failed to add student: {
+          typeof error === "string"
+            ? error
+            : error?.message ||
             error?.error ||
             "Internal Server Error"
-      }
-    </Alert>
-  );
+        }
+      </Alert>
+    );
 
 
   return (
@@ -302,7 +302,7 @@ else {
           fontWeight={700}
           sx={{
             mb: 1,
-            background: "linear-gradient(135deg, #1a1a1a 0%, #4a4a4a 100%)",
+            background: "linear-gradient(135deg, #1a1a1a 0%, #696969 100%)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
           }}
@@ -323,7 +323,7 @@ else {
         <CardContent sx={{ p: { xs: 4, sm: 4, md: 5 } }}>
           <form onSubmit={handleSubmit}>
             {/* Single Section Header */}
-            <Box sx={{ mb: 4, display: "flex", alignItems: "center", gap: 2 }}>
+            {/* <Box sx={{ mb: 4, display: "flex", alignItems: "center", gap: 2 }}>
               <Box
                 sx={{
                   width: 48,
@@ -345,7 +345,7 @@ else {
                   Fill all fields to complete enrollment
                 </Typography>
               </Box>
-            </Box>
+            </Box> */}
 
             {/* 3-Column Grid Layout */}
             <Grid container spacing={3} sx={{ width: '100%', maxWidth: '100%' }}>
@@ -502,7 +502,7 @@ else {
                     onChange={handleChange}
                     error={errors.comments}
                     placeholder="Enter any additional notes or comments about the student..."
-                    sx={{ width: 690 }}
+                    sx={{ inputStyle }}
                   />
 
                 </Stack>
@@ -582,6 +582,54 @@ else {
                     error={errors.totalFee}
                     sx={inputStyle}
                   /> */}
+
+                  <Grid item xs={12} md={4}>
+                    <Box
+                      sx={{
+                        height: '100%',
+                        display: "flex",
+                        flexDirection: "row-reverse",
+                        gap: 2,
+                        justifyContent: "center"
+                      }}
+                    >
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        size="large"
+                        fullWidth
+                        sx={{
+                          borderRadius: 2,
+                          py: 1.5,
+                          boxShadow: "0 8px 24px rgba(25,118,210,0.35)",
+                          fontWeight: 700,
+                          "&:hover": {
+                            boxShadow: "0 12px 32px rgba(25,118,210,0.45)",
+                          },
+                        }}
+                      >
+                        {isEditMode ? "Update Student" : "SAVE"}
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        size="large"
+                        color="error"
+                        fullWidth
+                        onClick={() => navigate("/students/addpayment")}
+                        sx={{
+                          borderRadius: 2,
+                          py: 1.5,
+                          borderWidth: 2,
+                          fontWeight: 600,
+                          "&:hover": {
+                            borderWidth: 2,
+                          },
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </Box>
+                  </Grid>
                 </Stack>
               </Grid>
             </Grid>
@@ -591,52 +639,7 @@ else {
               <Grid container spacing={3}>
 
                 {/* Column 3: Action Buttons */}
-                <Grid item xs={12} md={4}>
-                  <Box
-                    sx={{
-                      height: '100%',
-                      width: 1050,
-                      display: "flex",
-                      flexDirection: "row-reverse",
-                      gap: 2,
-                      justifyContent: "right",
-                    }}
-                  >
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      size="large"
-                      sx={{
-                        borderRadius: 2,
-                        py: 1.5,
-                        boxShadow: "0 8px 24px rgba(25,118,210,0.35)",
-                        fontWeight: 700,
-                        "&:hover": {
-                          boxShadow: "0 12px 32px rgba(25,118,210,0.45)",
-                        },
-                      }}
-                    >
-                      {isEditMode ? "Update Student" : "Submit"}
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      size="large"
-                      color="error"
-                      onClick={() => navigate("/students/addpayment")}
-                      sx={{
-                        borderRadius: 2,
-                        py: 1.5,
-                        borderWidth: 2,
-                        fontWeight: 600,
-                        "&:hover": {
-                          borderWidth: 2,
-                        },
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  </Box>
-                </Grid>
+
               </Grid>
             </Box>
           </form>
