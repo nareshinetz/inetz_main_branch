@@ -8,14 +8,19 @@ import {
   CardContent,
   IconButton,
   Tooltip,
+  Button,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchTransactions, deleteTransaction } from "../redux/slices/transacitonSlice";
 import AgGridTable from "../generic/AgGridTable";
 import { useNavigate } from "react-router-dom";
+import { Breadcrumbs, Link } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import DownloadDropdown from "../generic/DropDown";
+
 
 const TransactionHistory = () => {
   const dispatch = useDispatch();
@@ -42,12 +47,32 @@ const TransactionHistory = () => {
     navigate(`/transactions/view/${id}`);
   };
 
+  const downloadColumns = useMemo(
+      () => [
+        { header: "Student Id", key: "studentId", width: 25 },
+        { header: "Student Name", key: "studentName", width: 30 },
+        { header: "Payment Date", key: "paymentDate", width: 15 },
+        { header: "Paid Amount", key: "paidAmount", width: 20 },
+        { header: "Payment Mode", key: "paymentMode", width: 20 },
+      ],
+      []
+    );
+
   const transactionColumns = useMemo(
     () => [
       {
         headerName: "Student ID",
         field: "studentId",
         filter: true,
+        headerComponentParams: {
+          style: { textAlign: "center", width: "100%" },
+        },
+        cellStyle: {
+          textAlign: "center",
+          display: "flex",
+          // justifyContent: "center",
+          alignItems: "center",
+        },
         cellRenderer: (params) => (
           <Typography
             sx={{
@@ -79,11 +104,6 @@ const TransactionHistory = () => {
       {
         headerName: "Payment Mode",
         valueGetter: (params) => params.data.paymentMode || "-",
-        filter: true,
-      },
-      {
-        headerName: "Status",
-        field: "status",
         filter: true,
       },
       {
@@ -123,14 +143,31 @@ const TransactionHistory = () => {
     );
   }
 
-  return (
+  return (<>
+    
     <Box>
-      <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
+      {/* <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
         Transactions List
-      </Typography>
+      </Typography> */}
 
       <Card>
         <CardContent>
+          <Box display="flex" justifyContent="right" mb={2} flexWrap="wrap" gap={3} >
+                      <DownloadDropdown
+                        data={transactions}
+                        columns={downloadColumns}
+                        fileName="transaction_history"
+                        sheetName="Transaction"
+                        title="TRANSACTION HISTORY REPORT"
+                      />
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => navigate("/payments/add")}
+                      >
+                        Add
+                      </Button>
+                    </Box>
           <AgGridTable
             rowData={transactions || []}
             columnDefs={transactionColumns}
@@ -139,6 +176,7 @@ const TransactionHistory = () => {
         </CardContent>
       </Card>
     </Box>
+    </>
   );
 };
 

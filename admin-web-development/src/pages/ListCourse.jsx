@@ -16,6 +16,10 @@ import { fetchCourses, deleteCourse } from "../redux/slices/courseSlice";
 import AgGridTable from "../generic/AgGridTable";
 import { useNavigate } from "react-router-dom";
 import DownloadDropdown from "../generic/DropDown";
+import { Breadcrumbs, Link } from "@mui/material";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+
+
 
 const ListCourses = () => {
   const dispatch = useDispatch();
@@ -55,23 +59,11 @@ const ListCourses = () => {
       },
 
       {
-        headerName: "Duration (Months)",
-        field: "duration",
-        width: 160,
-      },
-
-      {
         headerName: "Total Fee",
         field: "price",
         width: 150,
         valueFormatter: (params) =>
           params.value ? `₹${params.value}` : "₹0",
-      },
-
-      {
-        headerName: "Instructor",
-        field: "instructor",
-        width: 180,
       },
 
       {
@@ -104,10 +96,9 @@ const ListCourses = () => {
   /* ================= DOWNLOAD CONFIG ================= */
   const downloadColumns = useMemo(
     () => [
+      { header: "Course Id", key: "id", width: 30 },
       { header: "Course Name", key: "courseName", width: 30 },
-      { header: "Duration", key: "duration", width: 20 },
-      { header: "Total Fee", key: "totalFee", width: 20 },
-      { header: "Instructor", key: "instructor", width: 25 },
+      { header: "Total Fee", key: "price", width: 20 },
     ],
     []
   );
@@ -132,7 +123,7 @@ const ListCourses = () => {
 
   /* ================= UI ================= */
 
-  return (
+  return (<>
     <Card sx={{ borderRadius: 3 }}>
       <CardContent>
         <Box
@@ -142,7 +133,7 @@ const ListCourses = () => {
           mb={3}
         >
           <Typography variant="h5" fontWeight={600}>
-            Courses List
+            Courses Lists
           </Typography>
 
           <Box display="flex" gap={2}>
@@ -170,6 +161,7 @@ const ListCourses = () => {
         />
       </CardContent>
     </Card>
+    </>
   );
 };
 

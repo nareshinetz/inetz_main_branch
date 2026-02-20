@@ -13,6 +13,9 @@ import { ArrowBack } from "@mui/icons-material";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchStudents } from "../redux/slices/studentSlice";
+import { fetchStudentTransactions } from "../redux/slices/transacitonSlice";
+import AgGridTable from "../generic/AgGridTable";
+
 
 const StudentDetails = () => {
   const { id } = useParams();
@@ -20,6 +23,20 @@ const StudentDetails = () => {
   const dispatch = useDispatch();
 
   const { students } = useSelector((state) => state.students);
+
+  const columnDefs = [
+    { headerName: "Transaction ID", field: "paymentId", flex: 1 },
+    { headerName: "Payment Date", field: "paymentDate", flex: 1 },
+    { headerName: "Payment Mode", field: "paymentMode", flex: 1 },
+    {
+      headerName: "Paid Amount",
+      field: "paidAmount",
+      flex: 1,
+      valueFormatter: (params) => `₹${params.value}`
+    },
+  ];
+
+
   const student = students.find((s) => String(s.id) === id);
 
   useEffect(() => {
@@ -46,7 +63,7 @@ const StudentDetails = () => {
   );
 
   return (
-    <Box sx={{ maxWidth: 1100, mx: "auto", px: 2 }}>
+    <Box sx={{ mb: 4 }}>
       {/* Back Button */}
       <Button
         startIcon={<ArrowBack />}
@@ -57,7 +74,7 @@ const StudentDetails = () => {
       </Button>
 
       <Card variant="outlined">
-        <CardContent sx={{ p: { xs: 2, md: 4 } }}>
+        <CardContent sx={{ p: { xs: 4, sm: 4, md: 5 } }}>
           {/* Header */}
           <Typography variant="h5" fontWeight={700} mb={1}>
             Student Details
@@ -163,6 +180,51 @@ const StudentDetails = () => {
           <Typography variant="body2" sx={{ maxWidth: 800 }}>
             {student.comments || "-"}
           </Typography>
+
+          {/* Fee Information */}
+          <Typography fontWeight={700} mt={5} mb={1}>
+            Fee Information
+          </Typography>
+          <Divider sx={{ mb: 3 }} />
+
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={4}>
+              <InfoItem label="Total Fees" value={`₹${student.studentFees?.totalFees ?? "-"}`} />
+            </Grid>
+
+            <Grid item xs={12} sm={4}>
+              <InfoItem label="Paid Amount" value={`₹${student.studentFees?.paidAmount ?? 0}`} />
+            </Grid>
+
+            <Grid item xs={12} sm={4}>
+              <InfoItem
+                label="Pending Amount"
+                value={`₹${student.studentFees?.pendingAmount ?? 0}`}
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <InfoItem
+                label="Status"
+                value={`₹${student.studentFees?.status}`}
+              />
+            </Grid>
+          </Grid>
+
+          
+
+          {/* Transaction History */}
+          <Typography fontWeight={700} mt={5} mb={1}>
+            Transaction History
+          </Typography>
+          <Divider sx={{ mb: 3 }} />
+
+          <AgGridTable
+            rowData={student.studentFees.payments || []}
+            columnDefs={columnDefs}
+            loadingMessage="Loading transactions..."
+          />
+
+
         </CardContent>
       </Card>
     </Box>

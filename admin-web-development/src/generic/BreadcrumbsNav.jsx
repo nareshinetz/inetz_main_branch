@@ -2,40 +2,30 @@ import React from "react";
 import { Breadcrumbs, Typography, Link, Box } from "@mui/material";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 
+// BreadcrumbsNav.jsx
+
 const menuItems = [
   { name: "Dashboard", path: "/dashboard" },
+
   {
     name: "Leads",
     path: "/leads",
     children: [
       { name: "List Leads", path: "/leads/list" },
-      { name: "Add Leads", path: "/leads/add" },
+      { name: "Add Lead", path: "/leads/add" },
     ],
   },
+
   {
     name: "Students",
     path: "/students",
     children: [
-      {
-        name: "Course",
-        path: "/students/course",
-        children: [
-          { name: "List Students", path: "/students/course/list" },
-          { name: "Add Student", path: "/students/course/add" },
-        ],
-      },
-      {
-        name: "Internship",
-        path: "/students/internship",
-        children: [
-          { name: "List Students", path: "/students/internship/list" },
-          { name: "Add Student", path: "/students/internship/add" },
-        ],
-      },
-      { name: "List", path: "/students/list" },
-      { name: "Add", path: "/students/add" },
+      { name: "List Students", path: "/students/list" },
+      { name: "Add Student", path: "/students/add" },
+      { name: "View Student", path: "/students/view" },
     ],
   },
+
   {
     name: "Staff",
     path: "/staff",
@@ -44,16 +34,43 @@ const menuItems = [
       { name: "Add Staff", path: "/staff/add" },
     ],
   },
+
+  {
+    name: "Payments",
+    path: "/payments",
+    children: [
+      { name: "Add Payment", path: "/payments/add" },
+      { name: "Transaction History", path: "/payments/history" },
+    ],
+  },
+
+  {
+    name: "Course",
+    path: "/courses",
+    children: [
+      { name: "Add Course", path: "/courses/add" },
+      { name: "Course List", path: "/courses/list" },
+    ],
+  },
+  {
+    name: "Roles",
+    path: "/role",
+    children: [
+      { name: "Add Role", path: "/role/add" },
+      { name: "Role List", path: "/role/list" },
+    ],
+  },
 ];
+
 
 const findBreadcrumbTrail = (items, currentPath) => {
   for (const item of items) {
-    if (item.path === currentPath) {
+    if (currentPath.startsWith(item.path)) {
+      if (item.children) {
+        const childTrail = findBreadcrumbTrail(item.children, currentPath);
+        if (childTrail.length) return [item, ...childTrail];
+      }
       return [item];
-    }
-    if (item.children) {
-      const childTrail = findBreadcrumbTrail(item.children, currentPath);
-      if (childTrail.length) return [item, ...childTrail];
     }
   }
   return [];

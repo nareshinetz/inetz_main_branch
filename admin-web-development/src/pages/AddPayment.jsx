@@ -174,30 +174,6 @@ const actualFee = totalFee - discount;
 
   return (
     <Box sx={{ mb: 4 }}>
-      <Button
-        startIcon={<ArrowBack />}
-        onClick={() => navigate(-1)}
-        sx={{ mb: 3 }}
-      >
-        Back
-      </Button>
-
-      <Breadcrumbs
-        separator={<NavigateNextIcon fontSize="small" />}
-        sx={{ mb: 2 }}
-      >
-        <Link
-          underline="hover"
-          color="inherit"
-          sx={{ cursor: "pointer" }}
-          onClick={() => navigate("/dashboard")}
-        >
-          Payments
-        </Link>
-        <Typography color="text.primary" fontWeight={600}>
-          Add Payment
-        </Typography>
-      </Breadcrumbs>
 
       <Card variant="outlined"
       sx={{
@@ -297,17 +273,6 @@ const actualFee = totalFee - discount;
                   <InfoItem label="Total Fee" value={`₹${totalFee}`} />
                 </Grid>
                 <Grid item xs={12} sm={3}>
-                  <TextField
-                    fullWidth
-                    type="number"
-                    label="Discount"
-                    value={discount}
-                    onChange={(e) =>
-                      setDiscount(Number(e.target.value || 0))
-                    }
-                  />
-                </Grid>
-                <Grid item xs={12} sm={3}>
                   <InfoItem label="Actual Amount" value={`₹${actualFee}`} />
                 </Grid>
                 <Grid item xs={12} sm={3}>
@@ -394,7 +359,7 @@ const actualFee = totalFee - discount;
   onClose={() => {
     setStatusModal({ ...statusModal, open: false });
     if (statusModal.type === "success") {
-      navigate("/transactionhistory");
+      navigate("/payments/history");
     }
   }}
 />

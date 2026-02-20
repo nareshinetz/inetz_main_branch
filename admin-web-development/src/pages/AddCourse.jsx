@@ -14,6 +14,8 @@ import {
 import { School as SchoolIcon } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { Breadcrumbs, Link } from "@mui/material";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import {
   addCourse,
   editCourse,
@@ -111,7 +113,7 @@ const AddCourse = () => {
       }
 
       setSuccess(true);
-      setTimeout(() => navigate("/listcourse"), 1200);
+      setTimeout(() => navigate("/courses/list"), 1200);
     } catch (err) {
       console.error(err);
     }
@@ -139,28 +141,24 @@ const AddCourse = () => {
 
   /* ================= UI ================= */
 
-  return (
+  return (<>
     <Box>
       <Typography variant="h5" fontWeight={700} mb={3}>
         {isEditMode ? "Edit Course" : "Add New Course"}
       </Typography>
 
+    
+
       <Card sx={{ borderRadius: 3 }}>
-        <CardContent sx={{ p: 4 }}>
-          <Box display="flex" alignItems="center" gap={2} mb={4}>
-            <SchoolIcon color="primary" fontSize="large" />
-            <Typography variant="h6" fontWeight={600}>
-              Course Information
-            </Typography>
-          </Box>
+        <CardContent sx={{ p: { xs: 4, sm: 4, md: 5 } }}>
 
           <form onSubmit={handleSubmit}>
-            <Grid container spacing={3}>
+            <Grid container spacing={3} sx={{ width: '100%', maxWidth: '100%' }}>
               {[
                 { label: "Course Name", name: "courseName" },
                 { label: "Course Code", name: "courseCode" },
               ].map((field) => (
-                <Grid item xs={12} md={4} key={field.name}>
+                <Grid item xs={12} md={4} sx={{ width: '30%' }} key={field.name}>
                   <TextField
                     label={`${field.label} *`}
                     name={field.name}
@@ -172,7 +170,7 @@ const AddCourse = () => {
                 </Grid>
               ))}
 
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} md={4} sx={{ width: '30%' }}>
                 <TextField
                   label="Course Fees *"
                   name="price"
@@ -184,7 +182,7 @@ const AddCourse = () => {
                 />
               </Grid>
 
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} md={4} sx={{ width: '30%' }}>
                 <TextField
                   select
                   label="Trainer *"
@@ -202,7 +200,7 @@ const AddCourse = () => {
                 </TextField>
               </Grid>
 
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} md={4} sx={{ width: '30%' }}>
                 <TextField
                   label="Duration (Months) *"
                   name="duration"
@@ -212,25 +210,59 @@ const AddCourse = () => {
                   onChange={handleChange}
                   error={formErrors.duration}
                 />
+
+                
               </Grid>
+               <Grid item xs={12} md={4} sx={{ width: '30%' }}>
+                                  <Box
+                                    sx={{
+                                      height: '100%',
+                                      display: "flex",
+                                      flexDirection: "row-reverse",
+                                      gap: 2,
+                                      justifyContent: "center"
+                                    }}
+                                  >
+                                    <Button
+                                      type="submit"
+                                      variant="contained"
+                                      size="large"
+                                      fullWidth
+                                      sx={{
+                                        borderRadius: 2,
+                                        py: 1.5,
+                                        boxShadow: "0 8px 24px rgba(25,118,210,0.35)",
+                                        fontWeight: 700,
+                                        "&:hover": {
+                                          boxShadow: "0 12px 32px rgba(25,118,210,0.45)",
+                                        },
+                                      }}
+                                    >
+                                      {isEditMode ? "Update Student" : "SAVE"}
+                                    </Button>
+                                    <Button
+                                      variant="outlined"
+                                      size="large"
+                                      color="error"
+                                      fullWidth
+                                      onClick={() => navigate("/students/addpayment")}
+                                      sx={{
+                                        borderRadius: 2,
+                                        py: 1.5,
+                                        borderWidth: 2,
+                                        fontWeight: 600,
+                                        "&:hover": {
+                                          borderWidth: 2,
+                                        },
+                                      }}
+                                    >
+                                      Cancel
+                                    </Button>
+                                  </Box>
+                                </Grid>
             </Grid>
 
-            <Box display="flex" justifyContent="flex-end" gap={2} mt={4}>
-              <Button
-                variant="outlined"
-                onClick={() => navigate("/listcourse")}
-              >
-                Cancel
-              </Button>
-
-              <Button
-                type="submit"
-                variant="contained"
-                disabled={loading}
-              >
-                {isEditMode ? "Update Course" : "Create Course"}
-              </Button>
-            </Box>
+            
           </form>
 
           {error && (
@@ -241,6 +273,7 @@ const AddCourse = () => {
         </CardContent>
       </Card>
     </Box>
+    </>
   );
 };
 

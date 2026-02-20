@@ -28,10 +28,10 @@ export const addStaff = createAsyncThunk(
   async (staffData, { rejectWithValue }) => {
     try {
       const res = await axios.post(`${API_URL}/staff`, staffData);
-      return res.data;
+      return res.data.data; // ✅ IMPORTANT FIX
     } catch (err) {
       return rejectWithValue(
-        err.response?.data?.message || err.message || "Failed to add staff"
+        err.response?.data?.message || err.message
       );
     }
   }
@@ -100,7 +100,7 @@ const staffSlice = createSlice({
       })
       .addCase(fetchStaff.fulfilled, (state, action) => {
         state.loading = false;
-        state.staff = action.payload.content;
+        state.staff = action.payload.data;
       })
       .addCase(fetchStaff.rejected, (state, action) => {
         state.loading = false;

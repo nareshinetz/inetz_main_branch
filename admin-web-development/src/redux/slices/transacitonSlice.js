@@ -20,6 +20,53 @@ export const fetchTransactions = createAsyncThunk(
   }
 );
 
+export const fetchTransactionById = createAsyncThunk(
+  "transactions/fetchById",
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await axios.get(`${API_URL}/${id}`);
+      const t = res.data.data;
+
+      return {
+        ...t,
+        id: t.paymentId,
+        totalFees: t.totalFees ?? "-",
+        pendingAmount: t.pendingAmount ?? "-",
+        status: t.status ?? "Completed",
+        paymentMode: t.paymentMode ?? "-",
+      };
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
+export const fetchStudentTransactions = createAsyncThunk(
+  "transactions/fetchStudentTransactions",
+  async (studentId, { rejectWithValue }) => {
+    try {
+      const res = await axios.get(
+        `${API_URL}/student/${studentId}`
+      );
+
+      const data = res.data?.data || [];
+
+      return data.map((t) => ({
+        ...t,
+        id: t.paymentId,
+        totalFees: t.totalFees ?? "-",
+        pendingAmount: t.pendingAmount ?? "-",
+        status: t.status ?? "Completed",
+        paymentMode: t.paymentMode ?? "-",
+      }));
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
+
+
 /* ================= ADD ================= */
 export const addTransaction = createAsyncThunk(
   "transactions/addTransaction",
@@ -59,6 +106,9 @@ const transactionSlice = createSlice({
   name: "transactions",
   initialState: {
     transactions: [],
+    selectedTransaction: null,
+    studentTransactions: [],
+
     loading: false,
     error: null,
   },
@@ -79,26 +129,50 @@ const transactionSlice = createSlice({
         state.error = action.payload || action.error.message;
       })
 
-      /* ADD */
-      .addCase(addTransaction.pending, (state) => {
+      .addCase(fetchTransactionById.pending, (state) => {
         state.loading = true;
       })
-      .addCase(addTransaction.fulfilled, (state, action) => {
+      .addCase(fetchTransactionById.fulfilled, (state, action) => {
         state.loading = false;
-        state.transactions.push(action.payload);
+        state.selectedTransaction = action.payload;
       })
-      .addCase(addTransaction.rejected, (state, action) => {
+      .addCase(fetchTransactionById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
       })
 
-      /* DELETE */
-      .addCase(deleteTransaction.fulfilled, (state, action) => {
-        state.transactions = state.transactions.filter(
-          (t) => String(t.id) !== String(action.payload)
-        );
-      });
-  },
+      .addCase(fetchStudentTransactions.pending, (state) => {
+  state.loading = true;
+})
+.addCase(fetchStudentTransactions.fulfilled, (state, action) => {
+  state.loading = false;
+  state.studentTransactions = action.payload;
+})
+.addCase(fetchStudentTransactions.rejected, (state, action) => {
+  state.loading = false;
+  state.error = action.payload || action.error.message;
+})
+
+      /* ADD */
+      .addCase(addTransaction.pending, (state) => {
+        state.loading = true;
+      })
+    .addCase(addTransaction.fulfilled, (state, action) => {
+      state.loading = false;
+      state.transactions.push(action.payload);
+    })
+    .addCase(addTransaction.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload || action.error.message;
+    })
+
+    /* DELETE */
+    .addCase(deleteTransaction.fulfilled, (state, action) => {
+      state.transactions = state.transactions.filter(
+        (t) => String(t.id) !== String(action.payload)
+      );
+    });
+},
 });
 
 export default transactionSlice.reducer;

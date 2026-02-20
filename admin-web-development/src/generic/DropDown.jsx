@@ -33,15 +33,19 @@ const DownloadDropdown = ({ data, columns, fileName, sheetName, title }) => {
 
   return (
     <>
-      <Button variant="contained" onClick={handleClick}>
-        Download ▼
+      <Button variant="contained" color="success" onClick={handleClick}>
+        Download
       </Button>
 
-      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-        <MenuItem onClick={() => handleDownload("excel")}>Download Excel</MenuItem>
-        <MenuItem onClick={() => handleDownload("csv")}>Download CSV</MenuItem>
-        <MenuItem onClick={() => handleDownload("pdf")}>Download PDF</MenuItem>
-        <MenuItem onClick={() => handleDownload("word")}>Download Word</MenuItem>
+      <Menu anchorEl={anchorEl} open={open} onClose={handleClose} PaperProps={{
+    sx: {
+      width: anchorEl ? anchorEl.clientWidth : undefined
+    }
+  }}>
+        <MenuItem onClick={() => handleDownload("excel")}>Excel</MenuItem>
+        <MenuItem onClick={() => handleDownload("csv")}>CSV</MenuItem>
+        <MenuItem onClick={() => handleDownload("pdf")}>PDF</MenuItem>
+        {/* <MenuItem onClick={() => handleDownload("word")}>Download Word</MenuItem> */}
         <MenuItem onClick={() => handleDownload("print")}>Print</MenuItem>
       </Menu>
     </>

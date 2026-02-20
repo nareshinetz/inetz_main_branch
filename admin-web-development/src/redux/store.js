@@ -6,6 +6,7 @@ import staffReducer from "../redux/slices/staffSlice";
 import leadsReducer from "../redux/slices/leadsSlice";
 import courseReducer from "./slices/courseSlice";
 import transactionReducer from "./slices/transacitonSlice";
+import roleReducer from "./slices/roleSlice";
 
 const store = configureStore({
   reducer: {
@@ -15,6 +16,7 @@ const store = configureStore({
     leads: leadsReducer,
     courses: courseReducer,
     transactions: transactionReducer,
+    roles : roleReducer,
   },
 });
 

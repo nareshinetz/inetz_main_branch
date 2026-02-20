@@ -24,9 +24,21 @@ import AddPayment from "./pages/AddPayment";
 import EditStaff from "./pages/EditStaff";
 import AddCourse from "./pages/AddCourse";
 
+import AddBatch from "./pages/AddBatch";
+import BatchList from "./pages/BatchList";
+
+
 import TransactionHistory from "./pages/TransactionHistory";
 import TransactionDetails from "./pages/ViewTransactions";
 import ListCourses from "./pages/ListCourse";
+import BatchScheduler from "./pages/BatchScheduler";
+import  ListRole  from "./pages/ListRole";
+import  AddRole  from "./pages/AddRole";
+import AddUser from "./pages/AddUser";
+import ListUsers from "./pages/ListUsers";
+
+
+
 
 function App() {
   return (
@@ -48,14 +60,19 @@ function App() {
             <Route path="/students/view/:id" element={<StudentDetails />} />
             <Route path="/leads/add" element={<AddLeads />} />
             <Route path="/leads/list" element={<ListLead />} />
-            <Route path="/addcourse" element={<AddCourse />} />
-             <Route path="/courses/edit/:id" element={<AddCourse />} />
-            <Route path="/listcourse" element={<ListCourses />} />
-            <Route path="/addpayment" element={<AddPayment />} />
-            <Route path="/transactionhistory" element={<TransactionHistory />} />
-            <Route path="/transactions/view/:id"element={<TransactionDetails />}/>
-
-
+            <Route path="/courses/add" element={<AddCourse />} />
+            <Route path="/courses/edit/:id" element={<AddCourse />} />
+            <Route path="/courses/list" element={<ListCourses />} />
+            <Route path="/payments/add" element={<AddPayment />} />
+            <Route path="/payments/history" element={<TransactionHistory />} />
+            <Route path="/transactions/view/:id" element={<TransactionDetails />} />
+            <Route path="/batches/add" element={<AddBatch />} />
+            <Route path="/batches/list" element={<BatchList />} />
+            <Route path="/batches/scheduler" element={<BatchScheduler />} />
+            <Route path="/role/add" element={<AddRole />} />
+            <Route path="/role/list" element={<ListRole />} />
+            <Route path="/user/add" element={<AddUser />} />
+            <Route path="/user/list" element={<ListUsers />} />
           </Route>
         </Routes>
       </Router>

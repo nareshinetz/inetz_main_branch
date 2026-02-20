@@ -1,37 +1,42 @@
-import React, { useEffect } from "react";
-import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  Grid,
-  Divider,
-  Button,
-  Stack,
-} from "@mui/material";
-import { ArrowBack } from "@mui/icons-material";
-import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchTransactions } from "../redux/slices/transacitonSlice";
+import { fetchTransactionById } from "../redux/slices/transacitonSlice";
+import { useParams, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { Box, Button, Card, CardContent, Divider, Grid, Stack, Typography } from "@mui/material";
+import { ArrowBack } from "@mui/icons-material";
+import {
+  fetchStudentTransactions,
+} from "../redux/slices/transacitonSlice";
+
+
 
 const TransactionDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { transactions = [] } = useSelector(
-    (state) => state.transactions || {}
-  );
+ const {
+  selectedTransaction: transaction,
+  studentTransactions,
+  loading,
+} = useSelector((state) => state.transactions);
 
-  const transaction = transactions.find(
-    (t) => String(t.paymentId) === String(id)
-  );
+useEffect(() => {
+  if (id) {
+    dispatch(fetchTransactionById(id));
+  }
+}, [dispatch, id]);
 
-  useEffect(() => {
-    if (!transactions.length) {
-      dispatch(fetchTransactions());
-    }
-  }, [dispatch, transactions.length]);
+useEffect(() => {
+  if (transaction?.studentId) {
+    dispatch(fetchStudentTransactions(transaction.studentId));
+  }
+}, [dispatch, transaction?.studentId]);
+
+
+  if (loading) {
+    return <Typography align="center">Loading...</Typography>;
+  }
 
   if (!transaction) {
     return (
@@ -40,6 +45,8 @@ const TransactionDetails = () => {
       </Typography>
     );
   }
+
+
 
   const InfoItem = ({ label, value, highlight }) => (
     <Stack spacing={0.5}>
@@ -65,6 +72,8 @@ const TransactionDetails = () => {
       >
         Back
       </Button>
+
+      
 
       <Card variant="outlined">
         <CardContent sx={{ p: { xs: 2, md: 4 } }}>
@@ -137,6 +146,41 @@ const TransactionDetails = () => {
           <Typography variant="body2" sx={{ maxWidth: 800 }}>
             {transaction.notes || "-"}
           </Typography>
+
+          {/* Transaction History */}
+<Typography fontWeight={700} mt={5} mb={1}>
+  Student Transaction History
+</Typography>
+<Divider sx={{ mb: 3 }} />
+
+<Grid container spacing={2}>
+  {studentTransactions.map((item) => (
+    <Grid item xs={12} key={item.id}>
+      <Card variant="outlined">
+        <CardContent>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={3}>
+              <InfoItem label="Transaction ID" value={item.paymentId} />
+            </Grid>
+
+            <Grid item xs={12} sm={3}>
+              <InfoItem label="Paid Amount" value={`₹${item.paidAmount}`} />
+            </Grid>
+
+            <Grid item xs={12} sm={3}>
+              <InfoItem label="Pending" value={`₹${item.pendingAmount}`} />
+            </Grid>
+
+            <Grid item xs={12} sm={3}>
+              <InfoItem label="Date" value={item.paymentDate} />
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+    </Grid>
+  ))}
+</Grid>
+
         </CardContent>
       </Card>
     </Box>

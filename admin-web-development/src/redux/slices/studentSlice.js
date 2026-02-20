@@ -57,14 +57,19 @@ export const addStudent = createAsyncThunk(
 // Update student
 export const updateStudent = createAsyncThunk(
   "students/updateStudent",
-  async ({ id, data }) => {
-    const response = await axios.put(
-      `${api}/students/${id}`,
-      data
-    );
-    return response.data;
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(
+        `${API_URL}/students/${id}`,
+        data
+      );
+      return response.data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
   }
 );
+
 
 // Delete student
 export const deleteStudent = createAsyncThunk(

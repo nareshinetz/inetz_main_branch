@@ -130,6 +130,7 @@ const AddStudent = () => {
     pgMark: "",
     status: "",
     comments: "",
+    discount:""
   });
 
   useEffect(() => {
@@ -137,8 +138,14 @@ const AddStudent = () => {
       dispatch(fetchStudentById(id))
         .unwrap()
         .then((student) => {
-          setFormData(student);
+          if (student) {
+            setFormData({
+              ...formData,
+              ...student,
+            });
+          }
         })
+
         .catch((err) => {
           console.error("Failed to fetch student:", err);
         });
@@ -176,7 +183,7 @@ const AddStudent = () => {
     "IoT": "C007",
   };
 
-  const numberFields = ["sslcMark", "hscMark", "ugMark", "pgMark"];
+  const numberFields = ["sslcMark", "hscMark", "ugMark", "pgMark","discount"];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -199,18 +206,21 @@ const AddStudent = () => {
       if (name === "courseName") {
         updated.courseNumber = courseCodeMap[value] || "";
       }
-
       return updated;
     });
 
     // optional: clear field error
-    if (errors?.[name]) {
-      setErrors((prev) => ({ ...prev, [name]: false }));
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
     }
+
   };
 
 
-  const requiredFields = [
+  const  Fields = [
     "studentName",
     "emailId",
     "phoneNumber",
@@ -220,24 +230,93 @@ const AddStudent = () => {
     "status",
   ];
 
-  const validateForm = () => {
-    const newErrors = {};
+ const validate = () => {
+  const newErrors = {};
 
-    requiredFields.forEach((field) => {
-      if (!formData[field]?.toString().trim()) {
-        newErrors[field] = true;
-      }
-    });
+  // 🔹 Required Text Fields
+  if (!formData.studentName?.trim())
+    newErrors.studentName = "Please enter student name";
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  if (!formData.emailId?.trim()) {
+    newErrors.emailId = "Please enter email address";
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.emailId)) {
+    newErrors.emailId = "Please enter valid email address";
+  }
 
+  if (!formData.phoneNumber?.trim()) {
+    newErrors.phoneNumber = "Please enter phone number";
+  } else if (!/^[0-9]{10}$/.test(formData.phoneNumber)) {
+    newErrors.phoneNumber = "Phone number must be 10 digits";
+  }
+
+  if (!formData.collegeName?.trim())
+    newErrors.collegeName = "Please enter college name";
+
+  if (!formData.cityName?.trim())
+    newErrors.cityName = "Please enter city name";
+
+  if (!formData.department?.trim())
+    newErrors.department = "Please enter department";
+
+  if (!formData.degree?.trim())
+    newErrors.degree = "Please enter degree";
+
+  // 🔹 Dropdown Validations
+  if (!formData.programType)
+    newErrors.programType = "Please select program type";
+
+  if (!formData.modeOfTraining)
+    newErrors.modeOfTraining = "Please select mode of training";
+
+  if (!formData.courseName)
+    newErrors.courseName = "Please select course";
+
+  if (!formData.yearOfStudy)
+    newErrors.yearOfStudy = "Please select year of study";
+
+  if (!formData.status)
+    newErrors.status = "Please select status";
+
+  // 🔹 Marks Validation (Optional but if entered must be valid)
+
+  if (formData.sslcMark !== null && formData.sslcMark !== "") {
+    if (formData.sslcMark < 0 || formData.sslcMark > 500) {
+      newErrors.sslcMark = "SSLC mark must be between 0 - 500";
+    }
+  }
+
+  if (formData.hscMark !== null && formData.hscMark !== "") {
+    if (formData.hscMark < 0 || formData.hscMark > 600) {
+      newErrors.hscMark = "HSC mark must be between 0 - 600";
+    }
+  }
+
+  if (formData.ugMark !== null && formData.ugMark !== "") {
+    if (formData.ugMark < 0 || formData.ugMark > 10) {
+      newErrors.ugMark = "UG CGPA must be between 0 - 10";
+    }
+  }
+
+  if (formData.pgMark !== null && formData.pgMark !== "") {
+    if (formData.pgMark < 0 || formData.pgMark > 10) {
+      newErrors.pgMark = "PG CGPA must be between 0 - 10";
+    }
+  }
+
+  // 🔹 Comments (optional but limit length)
+  if (formData.comments && formData.comments.length > 250) {
+    newErrors.comments = "Comments cannot exceed 250 characters";
+  }
+
+  setErrors(newErrors);
+
+  return Object.keys(newErrors).length === 0;
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validateForm()) return;
+    if (!validate()) return;
 
     try {
       let resultStudent;
@@ -246,8 +325,9 @@ const AddStudent = () => {
         const { id: _, ...payload } = formData;
 
         resultStudent = await dispatch(
-          updateStudent({ id: students.id, ...payload })
+          updateStudent({ id, data: payload })
         ).unwrap();
+
       }
       else {
         resultStudent = await dispatch(addStudent(formData)).unwrap();
@@ -272,7 +352,7 @@ const AddStudent = () => {
     }
   };
 
-  if (loading && !students.length)
+  if (isEditMode && loading)
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="300px">
         <CircularProgress />
@@ -353,15 +433,16 @@ const AddStudent = () => {
               <Grid item xs={12} md={4} sx={{ width: '30%' }}>
                 <Stack spacing={3}>
                   <TextField
-                    label="Student Name "
+                    label="Student Name"
                     name="studentName"
                     fullWidth
-                    required
                     value={formData.studentName}
                     onChange={handleChange}
                     error={errors.studentName}
+                    helperText={errors.studentName || ""}
                     sx={inputStyle}
-                  />
+                                      />
+
                   <TextField
                     select
                     label="Program Type"
@@ -434,7 +515,6 @@ const AddStudent = () => {
                     name="emailId"
                     type="email"
                     fullWidth
-                    required
                     value={formData.emailId}
                     onChange={handleChange}
                     error={errors.emailId}
@@ -448,7 +528,6 @@ const AddStudent = () => {
                     value={formData.modeOfTraining}
                     onChange={handleChange}
                     error={errors.modeOfTraining}
-                    SelectProps={selectProps}
                     sx={inputStyle}
                   >
                     {modeOptions.map((opt) => (
@@ -516,7 +595,6 @@ const AddStudent = () => {
                     label="Phone Number"
                     name="phoneNumber"
                     fullWidth
-                    required
                     value={formData.phoneNumber}
                     onChange={handleChange}
                     error={errors.phoneNumber}
@@ -571,17 +649,16 @@ const AddStudent = () => {
                     sx={inputStyle}
                   />
 
-                  {/* <TextField
-                    label="Total Fee"
-                    name="totalFee"
+                  <TextField
+                    label="Discount"
+                    name="discount"
                     type="number"
                     fullWidth
-                    disabled
                     value={formData.totalFee}
                     onChange={handleChange}
                     error={errors.totalFee}
                     sx={inputStyle}
-                  /> */}
+                  />
 
                   <Grid item xs={12} md={4}>
                     <Box
@@ -615,7 +692,7 @@ const AddStudent = () => {
                         size="large"
                         color="error"
                         fullWidth
-                        onClick={() => navigate("/students/addpayment")}
+                        onClick={() => navigate("/payments/add")}
                         sx={{
                           borderRadius: 2,
                           py: 1.5,
@@ -657,7 +734,7 @@ const AddStudent = () => {
           setStatusModal({ ...statusModal, open: false });
 
           if (statusModal.type === "success" && studentId) {
-            navigate("/addpayment", {
+            navigate("/payments/add", {
               state: {
                 studentId: studentId, // ✅ dynamic ID
               },

@@ -110,7 +110,9 @@ useEffect(() => {
       { headerName: "Name", field: "studentName", sortable: true, filter: true },
       { headerName: "Phone", field: "phoneNumber" },
       { headerName: "Program", field: "programType", filter: true },
-      { headerName: "Status", field: "status", filter: true },
+      { headerName: "Total Fees", field: "studentFees.totalFees", filter: true },
+      { headerName: "Paid Fees", field: "studentFees.paidAmount", filter: true },
+      { headerName: "Status", field: "studentFees.status", filter: true },
       {
         headerName: "Actions",
         width: 140,
@@ -143,6 +145,7 @@ useEffect(() => {
       { header: "Email", key: "emailId", width: 30 },
       { header: "Phone", key: "phoneNumber", width: 15 },
       { header: "Program", key: "programType", width: 20 },
+      { header: "Total Fees", key: "totalFees", width: 20 },
       { header: "Status", key: "status", width: 15 },
     ],
     []
@@ -164,8 +167,8 @@ useEffect(() => {
   return (
     <Card>
       <CardContent>
-        <Box display="flex" justifyContent="space-between" mb={2} flexWrap="wrap">
-          <Typography variant="h4">Students List</Typography>
+        <Box display="flex" justifyContent="right" mb={2} flexWrap="wrap" gap={3}>
+          {/* <Typography variant="h4">Students List</Typography> */}
           <TextField
             size="small"
             placeholder="Search student by name..."
@@ -189,7 +192,7 @@ useEffect(() => {
               color="primary"
               onClick={() => navigate("/students/add")}
             >
-              Add Student
+              Add
             </Button>
           </Box>
         </Box>
