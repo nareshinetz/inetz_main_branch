@@ -1,0 +1,45 @@
+# Ignore Eclipse/STS and build files
+
+.project
+
+.classpath
+
+.settings/
+
+.metadata/
+
+
+
+# Build output
+
+/target/
+
+/bin/
+
+/build/
+
+
+
+# Maven wrapper (optional)
+
+.mvn/
+
+mvnw
+
+mvnw.cmd
+
+
+
+# Logs
+
+*.log
+
+
+
+# OS files
+
+.DS_Store
+
+Thumbs.db
+
+
