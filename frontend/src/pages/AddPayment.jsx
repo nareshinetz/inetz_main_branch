@@ -132,7 +132,6 @@ const actualFee = totalFee - discount;
         totalFees: totalFee,
         actualFees: actualFee,
         pendingAmount:pendingAmount,
-        transactionId : transactionId,
         date: new Date().toLocaleDateString(),
       }),
     });

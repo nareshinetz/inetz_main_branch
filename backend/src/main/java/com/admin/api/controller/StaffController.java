@@ -12,6 +12,7 @@ import com.admin.api.service.StaffService;
 
 import jakarta.validation.Valid;
 
+@CrossOrigin("http://localhost:5173/")
 @RestController
 @RequestMapping("/api")
 public class StaffController {

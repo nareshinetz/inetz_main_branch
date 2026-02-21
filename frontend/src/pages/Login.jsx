@@ -1,9 +1,9 @@
 import { Paper, TextField, Button } from '@mui/material'
 import Box from '@mui/material/Box';
-import React, { useState } from 'react'; 
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';  
-import axios from 'axios'; 
+import { useDispatch } from 'react-redux';
+import axios from 'axios';
 
 import { LOGIN_MSG } from "../utils/messages";
 import { BASE_URL } from '../utils/api';
@@ -16,16 +16,16 @@ const Login = () => {
   const [msg, setMsg] = useState('');
 
   const navigate = useNavigate();
-  const dispatch = useDispatch();   
+  const dispatch = useDispatch();
 
   const handleLogin = async () => {
     if (!validateEmail(email)) {
       setMsg(LOGIN_MSG.INVALID_EMAIL);
-      return; 
+      return;
     }
-  
+
     try {
-      const res = await axios.get(`${BASE_URL}/users`, {
+      const res = await axios.post(`${BASE_URL}/login`, {
         params: {
           email: email,
           password: password
@@ -34,18 +34,28 @@ const Login = () => {
 
       if (res.data.length > 0) {
         const user = res.data[0];
-        
 
-        
+
+
         dispatch(
           loginSuccess({
-            user: { id: user.id, role: user.role, email: user.email },
-            token: "fake-jwt-token-" + user.id, 
+            user: {
+              id: user.id,
+              email: user.email,
+              role: user.role,
+              permissions: {
+                studentManagement: user.studentManagement,
+                staffManagement:user.staffManagement,
+                priceManagement: user.priceManagement,
+                leadManagement:user.LeadManagement,
+                generateCertificate:user.generateCertificate,
+              }
+            },
+            token: "fake-jwt-token-" + user.id,
           })
         );
-
         setMsg(LOGIN_MSG.SUCCESS);
-        navigate("/dashboard");   
+        navigate("/dashboard");
       } else {
         setMsg(LOGIN_MSG.INVALID_CREDENTIALS);
         setPassword("");
@@ -62,9 +72,9 @@ const Login = () => {
         minHeight: '100vh',
         background: 'linear-gradient(700deg, #f1f1f1f1,white)',
         display: 'flex',
-        flexDirection: 'column', 
+        flexDirection: 'column',
         padding: '40px',
-        gap: '20px', 
+        gap: '20px',
         justifyContent: 'center',
         alignItems: 'center',
         fontFamily: `'Segoe UI', sans-serif`,
@@ -124,7 +134,7 @@ const Login = () => {
           >
             Sign Up
           </Link>
-        </Box>      
+        </Box>
       </Paper>
     </Box>
   );

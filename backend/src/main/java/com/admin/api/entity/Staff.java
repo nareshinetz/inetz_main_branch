@@ -78,7 +78,7 @@ public class Staff {
 
     @NotNull(message = "Aadhar card number is required")
     @Pattern(regexp = "^[0-9]{12}$", message = "Aadhar must be 12 digits")
-    @Column(name = "adhar_card", unique = true)
+    @Column(name = "aadhar_card", unique = true)
     private String adharCard;   // <-- changed to String
 
     @NotBlank(message = "PAN card number is required")

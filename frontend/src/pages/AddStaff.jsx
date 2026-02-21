@@ -15,7 +15,6 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import CustomButton from "../generic/Button";
 import { addStaff, resetStaffSuccess } from "../redux/slices/staffSlice";
-import axios from "axios";
 
 const inputStyle = {
   "& .MuiOutlinedInput-root": {
@@ -45,24 +44,10 @@ const AddStaff = () => {
     skills: "",
     joiningDate: "",
     salary: "",
-    originalCertificate: "",
+    originalCertification: "",
   });
 
   const [errors, setErrors] = useState({});
-
-  /* ================= FETCH DROPDOWNS ================= */
-  useEffect(() => {
-    const fetchDropdowns = async () => {
-      try {
-        const roleRes = await axios.get("http://localhost:8082/api/roles");
-        setRoles(roleRes.data);
-        setSkills(skillRes.data);
-      } catch (err) {
-        console.error("Dropdown fetch error:", err);
-      }
-    };
-    fetchDropdowns();
-  }, []);
 
   /* ================= HANDLE CHANGE ================= */
   const handleChange = (e) => {
@@ -219,20 +204,13 @@ const AddStaff = () => {
                     fullWidth
                   />
                   <TextField
-                    select
                     label="Role"
                     name="roleName"
                     value={formData.roleName}
                     onChange={handleChange}
                     error={errors.roleName}
                     fullWidth
-                  >
-                    {roles.map((role) => (
-                      <MenuItem key={role.id} value={role.name}>
-                        {role.name}
-                      </MenuItem>
-                    ))}
-                  </TextField>
+                  />
                   <TextField
                     label="Highest Degree"
                     name="degree"
@@ -248,20 +226,13 @@ const AddStaff = () => {
               <Grid item xs={12} md={4}>
                 <Stack spacing={3}>
                   <TextField
-                    select
                     label="Skills"
                     name="skills"
                     value={formData.skills}
                     onChange={handleChange}
                     error={errors.skills}
                     fullWidth
-                  >
-                    {skills.map((skill) => (
-                      <MenuItem key={skill.id} value={skill.name}>
-                        {skill.name}
-                      </MenuItem>
-                    ))}
-                  </TextField>
+                  />
                   <TextField
                     type="date"
                     label="Joining Date"
