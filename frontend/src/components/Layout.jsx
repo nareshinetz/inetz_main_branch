@@ -33,10 +33,9 @@ import {
 import logo from "../assets/logo.png";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import { styled, alpha } from "@mui/material/styles";
-
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../redux/slices/userSlice";
 import BreadcrumbsNav from "../generic/BreadcrumbsNav";
+import { logout } from "../redux/slices/authSlice";
 
 const drawerWidth = 300;
 
@@ -54,11 +53,12 @@ const Layout = () => {
   const [transactionOpen, setTransactionOpen] = useState(false);
   const [batchOpen, setBatchOpen] = useState(false);
   const [roleOpen, setRoleOpen] = useState(false);
+  const [userOpen, setUserOpen] = useState(false);
 
   const [anchorEl, setAnchorEl] = useState(null);
 
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.user.user);
+   const user = useSelector((state) => state.auth.user);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -101,23 +101,36 @@ const Layout = () => {
   };
 
   const handleBatchClick = () => {
-  setBatchOpen(!batchOpen);
-  setCourseOpen(false);
-  setStudentsOpen(false);
-  setTransactionOpen(false);
-  setStaffOpen(false);
-  setLeadsOpen(false);
+    setBatchOpen(!batchOpen);
+    setCourseOpen(false);
+    setStudentsOpen(false);
+    setTransactionOpen(false);
+    setStaffOpen(false);
+    setLeadsOpen(false);
   };
 
-const handleRoleClick = () => {
-  setRoleOpen(!roleOpen)
-  setBatchOpen(false);
-  setCourseOpen(false);
-  setStudentsOpen(false);
-  setTransactionOpen(false);
-  setStaffOpen(false);
-  setLeadsOpen(false);
-};
+  const handleRoleClick = () => {
+    setRoleOpen(!roleOpen)
+    setBatchOpen(false);
+    setCourseOpen(false);
+    setStudentsOpen(false);
+    setTransactionOpen(false);
+    setStaffOpen(false);
+    setLeadsOpen(false);
+    setUserOpen(false)
+
+  };
+
+  const handleUserClick = () => {
+    setUserOpen(!userOpen)
+    setBatchOpen(false);
+    setCourseOpen(false);
+    setStudentsOpen(false);
+    setTransactionOpen(false);
+    setStaffOpen(false);
+    setLeadsOpen(false);
+    setRoleOpen(false)
+  };
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -171,9 +184,9 @@ const handleRoleClick = () => {
       setTransactionOpen(true);
     } else if (path.startsWith("/courses/add") || path.startsWith("/courses/list")) {
       setCourseOpen(true);
-    }else if (path.startsWith("/batches")) {
-  setBatchOpen(true);
-}
+    } else if (path.startsWith("/batches")) {
+      setBatchOpen(true);
+    }
 
   }, [location.pathname]);
 
@@ -488,163 +501,181 @@ const handleRoleClick = () => {
               <ListItemText primary="Course List" />
             </ListItemButton>
 
-            
-              </List>
-            </Collapse>
 
-            {/* Batch Allocation */}
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={handleBatchClick}
-                sx={{
-                  "&:hover": { backgroundColor: alpha("#ffffff", 0.1) },
-                }}
-              >
-                <ListItemIcon sx={{ color: "inherit" }}>
-                  <SchoolIcon />
-                </ListItemIcon>
-                <ListItemText primary="Batch Allocation" />
-                {batchOpen ? <ExpandLess /> : <ExpandMore />}
-              </ListItemButton>
-            </ListItem>
+          </List>
+        </Collapse>
 
-            <Collapse in={batchOpen} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                <ListItemButton
-                  sx={{
-                    pl: 4,
-                    "&.Mui-selected": {
-                      backgroundColor: alpha("#ffffff", 0.2),
-                      "& .MuiListItemIcon-root": { color: "#ffffff" },
-                    },
-                    "&:hover": { backgroundColor: alpha("#ffffff", 0.1) },
-                  }}
-                  selected={isActive("/batches/add")}
-                  onClick={() => navigate("/batches/add")}
-                >
-                  <ListItemIcon sx={{ color: "inherit" }}>
-                    <PersonAdd />
-                  </ListItemIcon>
-                  <ListItemText primary="Allocate Batch" />
-                </ListItemButton>
+        {/* Batch Allocation */}
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={handleBatchClick}
+            sx={{
+              "&:hover": { backgroundColor: alpha("#ffffff", 0.1) },
+            }}
+          >
+            <ListItemIcon sx={{ color: "inherit" }}>
+              <SchoolIcon />
+            </ListItemIcon>
+            <ListItemText primary="Batch Allocation" />
+            {batchOpen ? <ExpandLess /> : <ExpandMore />}
+          </ListItemButton>
+        </ListItem>
 
-                <ListItemButton
-                  sx={{
-                    pl: 4,
-                    "&.Mui-selected": {
-                      backgroundColor: alpha("#ffffff", 0.2),
-                      "& .MuiListItemIcon-root": { color: "#ffffff" },
-                    },
-                    "&:hover": { backgroundColor: alpha("#ffffff", 0.1) },
-                  }}
-                  selected={isActive("/batches/list")}
-                  onClick={() => navigate("/batches/list")}
-                >
-                  <ListItemIcon sx={{ color: "inherit" }}>
-                    <ListIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Batch List" />
-                </ListItemButton>
+        <Collapse in={batchOpen} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
+            <ListItemButton
+              sx={{
+                pl: 4,
+                "&.Mui-selected": {
+                  backgroundColor: alpha("#ffffff", 0.2),
+                  "& .MuiListItemIcon-root": { color: "#ffffff" },
+                },
+                "&:hover": { backgroundColor: alpha("#ffffff", 0.1) },
+              }}
+              selected={isActive("/batches/add")}
+              onClick={() => navigate("/batches/add")}
+            >
+              <ListItemIcon sx={{ color: "inherit" }}>
+                <PersonAdd />
+              </ListItemIcon>
+              <ListItemText primary="Allocate Batch" />
+            </ListItemButton>
 
-                
+            <ListItemButton
+              sx={{
+                pl: 4,
+                "&.Mui-selected": {
+                  backgroundColor: alpha("#ffffff", 0.2),
+                  "& .MuiListItemIcon-root": { color: "#ffffff" },
+                },
+                "&:hover": { backgroundColor: alpha("#ffffff", 0.1) },
+              }}
+              selected={isActive("/batches/list")}
+              onClick={() => navigate("/batches/list")}
+            >
+              <ListItemIcon sx={{ color: "inherit" }}>
+                <ListIcon />
+              </ListItemIcon>
+              <ListItemText primary="Batch List" />
+            </ListItemButton>
+
+
 
           </List>
         </Collapse>
         {/* Role Management */}
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={handleRoleClick}
-                sx={{
-                  "&:hover": { backgroundColor: alpha("#ffffff", 0.1) },
-                }}
-              >
-                <ListItemIcon sx={{ color: "inherit" }}>
-                  <SchoolIcon />
-                </ListItemIcon>
-                <ListItemText primary="Role Management" />
-                {roleOpen ? <ExpandLess /> : <ExpandMore />}
-              </ListItemButton>
-            </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={handleRoleClick}
+            sx={{
+              "&:hover": { backgroundColor: alpha("#ffffff", 0.1) },
+            }}
+          >
+            <ListItemIcon sx={{ color: "inherit" }}>
+              <SchoolIcon />
+            </ListItemIcon>
+            <ListItemText primary="Role Management" />
+            {roleOpen ? <ExpandLess /> : <ExpandMore />}
+          </ListItemButton>
+        </ListItem>
 
-            <Collapse in={roleOpen} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                <ListItemButton
-                  sx={{
-                    pl: 4,
-                    "&.Mui-selected": {
-                      backgroundColor: alpha("#ffffff", 0.2),
-                      "& .MuiListItemIcon-root": { color: "#ffffff" },
-                    },
-                    "&:hover": { backgroundColor: alpha("#ffffff", 0.1) },
-                  }}
-                  selected={isActive("/role/add")}
-                  onClick={() => navigate("/role/add")}
-                >
-                  <ListItemIcon sx={{ color: "inherit" }}>
-                    <PersonAdd />
-                  </ListItemIcon>
-                  <ListItemText primary="Add Role" />
-                </ListItemButton>
+        <Collapse in={roleOpen} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
+            <ListItemButton
+              sx={{
+                pl: 4,
+                "&.Mui-selected": {
+                  backgroundColor: alpha("#ffffff", 0.2),
+                  "& .MuiListItemIcon-root": { color: "#ffffff" },
+                },
+                "&:hover": { backgroundColor: alpha("#ffffff", 0.1) },
+              }}
+              selected={isActive("/roles/add")}
+              onClick={() => navigate("/roles/add")}
+            >
+              <ListItemIcon sx={{ color: "inherit" }}>
+                <PersonAdd />
+              </ListItemIcon>
+              <ListItemText primary="Add Role" />
+            </ListItemButton>
 
-                <ListItemButton
-                  sx={{
-                    pl: 4,
-                    "&.Mui-selected": {
-                      backgroundColor: alpha("#ffffff", 0.2),
-                      "& .MuiListItemIcon-root": { color: "#ffffff" },
-                    },
-                    "&:hover": { backgroundColor: alpha("#ffffff", 0.1) },
-                  }}
-                  selected={isActive("/role/list")}
-                  onClick={() => navigate("/role/list")}
-                >
-                  <ListItemIcon sx={{ color: "inherit" }}>
-                    <ListIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Role List" />
-                </ListItemButton>
-
-                <ListItemButton
-                  sx={{
-                    pl: 4,
-                    "&.Mui-selected": {
-                      backgroundColor: alpha("#ffffff", 0.2),
-                      "& .MuiListItemIcon-root": { color: "#ffffff" },
-                    },
-                    "&:hover": { backgroundColor: alpha("#ffffff", 0.1) },
-                  }}
-                  selected={isActive("/user/add")}
-                  onClick={() => navigate("/user/add")}
-                >
-                  <ListItemIcon sx={{ color: "inherit" }}>
-                    <PersonAdd />
-                  </ListItemIcon>
-                  <ListItemText primary="Add User" />
-                </ListItemButton>
-
-                <ListItemButton
-                  sx={{
-                    pl: 4,
-                    "&.Mui-selected": {
-                      backgroundColor: alpha("#ffffff", 0.2),
-                      "& .MuiListItemIcon-root": { color: "#ffffff" },
-                    },
-                    "&:hover": { backgroundColor: alpha("#ffffff", 0.1) },
-                  }}
-                  selected={isActive("/user/list")}
-                  onClick={() => navigate("/user/list")}
-                >
-                  <ListItemIcon sx={{ color: "inherit" }}>
-                    <ListIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="User List" />
-                </ListItemButton>
-
-                
-
+            <ListItemButton
+              sx={{
+                pl: 4,
+                "&.Mui-selected": {
+                  backgroundColor: alpha("#ffffff", 0.2),
+                  "& .MuiListItemIcon-root": { color: "#ffffff" },
+                },
+                "&:hover": { backgroundColor: alpha("#ffffff", 0.1) },
+              }}
+              selected={isActive("/roles/list")}
+              onClick={() => navigate("/roles/list")}
+            >
+              <ListItemIcon sx={{ color: "inherit" }}>
+                <ListIcon />
+              </ListItemIcon>
+              <ListItemText primary="Role List" />
+            </ListItemButton>
           </List>
         </Collapse>
+
+        {/* User Management */}
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={handleUserClick}
+            sx={{
+              "&:hover": { backgroundColor: alpha("#ffffff", 0.1) },
+            }}
+          >
+            <ListItemIcon sx={{ color: "inherit" }}>
+              <SchoolIcon />
+            </ListItemIcon>
+            <ListItemText primary="User Management" />
+            {userOpen ? <ExpandLess /> : <ExpandMore />}
+          </ListItemButton>
+        </ListItem>
+        <Collapse in={userOpen} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
+        <ListItemButton
+          sx={{
+            pl: 4,
+            "&.Mui-selected": {
+              backgroundColor: alpha("#ffffff", 0.2),
+              "& .MuiListItemIcon-root": { color: "#ffffff" },
+            },
+            "&:hover": { backgroundColor: alpha("#ffffff", 0.1) },
+          }}
+          selected={isActive("/user/add")}
+          onClick={() => navigate("/user/add")}
+        >
+          <ListItemIcon sx={{ color: "inherit" }}>
+            <PersonAdd />
+          </ListItemIcon>
+          <ListItemText primary="Add User" />
+        </ListItemButton>
+
+        <ListItemButton
+          sx={{
+            pl: 4,
+            "&.Mui-selected": {
+              backgroundColor: alpha("#ffffff", 0.2),
+              "& .MuiListItemIcon-root": { color: "#ffffff" },
+            },
+            "&:hover": { backgroundColor: alpha("#ffffff", 0.1) },
+          }}
+          selected={isActive("/user/list")}
+          onClick={() => navigate("/user/list")}
+        >
+          <ListItemIcon sx={{ color: "inherit" }}>
+            <ListIcon />
+          </ListItemIcon>
+          <ListItemText primary="User List" />
+        </ListItemButton>
+        </List>
+        </Collapse>
+        
       </List>
+      
     </Box>
   );
 

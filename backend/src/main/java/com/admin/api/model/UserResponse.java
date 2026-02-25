@@ -3,13 +3,9 @@ package com.admin.api.model;
 import lombok.Data;
 
 @Data
-public class UserRequest {
-	
-	private String name;
-	private String username;
-	private String password;
-	private String role;
-	
-		
+public class UserResponse {
 
+	private String name;
+	private String user_name;
+	private String role;
 }

@@ -5,10 +5,11 @@ import java.util.Optional;
 
 import com.admin.api.entity.User;
 import com.admin.api.model.UserRequest;
+import com.admin.api.model.UserResponse;
 
 public interface UserService {
 
-    User createUser(UserRequest dto);
+    UserResponse createUser(UserRequest dto);
 
     List<User> getAllUsers();
 

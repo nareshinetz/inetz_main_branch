@@ -5,7 +5,10 @@ import com.admin.api.entity.User;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
 
-	boolean existsByEmailId(String emailId);
+
+	boolean existsByUsername(String userName);
+
+	//boolean existsByUsername(String userName);
 
 }
 

@@ -7,7 +7,8 @@ import leadsReducer from "../redux/slices/leadsSlice";
 import courseReducer from "./slices/courseSlice";
 import transactionReducer from "./slices/transacitonSlice";
 import roleReducer from "./slices/roleSlice";
-import authReducer from './slices/authSlice'
+import authReducer from './slices/authSlice';
+import batchReducer from './slices/batchSlice';
 
 const store = configureStore({
   reducer: {
@@ -19,6 +20,7 @@ const store = configureStore({
     transactions: transactionReducer,
     roles : roleReducer,
     auth : authReducer,
+    batches : batchReducer,
   },
 });
 

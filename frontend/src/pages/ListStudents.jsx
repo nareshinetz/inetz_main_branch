@@ -36,18 +36,12 @@ const ListStudents = () => {
   const [page, setPage] = useState(1);
   const [size] = useState(10);
 
-  // Fetch students on page load or page change
-useEffect(() => {
-  dispatch(fetchStudents({ page: page , size }));
-}, [dispatch, page, size]);
-
-
-  // Debounced search
+  // Initial fetch + Debounced search
   useEffect(() => {
     const term = searchTerm.trim();
 
     if (term.length < 2) {
-      dispatch(fetchStudents({ page: page - 1, size }));
+      dispatch(fetchStudents({ page: (page - 1) || 1, size }));
       return;
     }
 
@@ -56,7 +50,7 @@ useEffect(() => {
     }, 500);
 
     return () => clearTimeout(debounce);
-  }, [searchTerm, dispatch, page, size]);
+  }, [searchTerm]);
 
   // Delete student
   const handleDelete = useCallback(

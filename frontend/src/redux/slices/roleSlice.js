@@ -1,81 +1,87 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-/* ================= MOCK STORAGE ================= */
-let mockRoles = [];
+/* ================= BASE URL ================= */
+const BASE_URL = "http://localhost:8082/api/roles";
 
-/* ================= CREATE ================= */
+/* ================= CREATE ROLE ================= */
 export const addRole = createAsyncThunk(
-  "roles/addRole",
+  "roles/create",
   async (role, { rejectWithValue }) => {
     try {
-      const newRole = {
-        id: Date.now(),
-        ...role,
-      };
-      mockRoles.push(newRole);
-      return newRole;
+      const res = await fetch(`${BASE_URL}/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(role),
+      });
+      if (!res.ok) throw new Error("Failed to create role");
+      return await res.json();
     } catch (error) {
-      return rejectWithValue("Failed to add role");
+      return rejectWithValue(error.message);
     }
   }
 );
 
-/* ================= FETCH ALL ================= */
+/* ================= FETCH ALL ROLES ================= */
 export const fetchRoles = createAsyncThunk(
   "roles/fetchRoles",
   async (_, { rejectWithValue }) => {
     try {
-      return mockRoles;
+      const res = await fetch(BASE_URL);
+      if (!res.ok) throw new Error("Failed to fetch roles");
+      return await res.json();
     } catch (error) {
-      return rejectWithValue("Failed to fetch roles");
+      return rejectWithValue(error.message);
     }
   }
 );
 
-/* ================= FETCH BY ID ================= */
+/* ================= FETCH ROLE BY ID ================= */
 export const fetchRoleById = createAsyncThunk(
   "roles/fetchRoleById",
   async (id, { rejectWithValue }) => {
     try {
-      const role = mockRoles.find((r) => r.id == id);
-      if (!role) throw new Error();
-      return role;
-    } catch {
-      return rejectWithValue("Role not found");
+      const res = await fetch(`${BASE_URL}/${id}`);
+      if (!res.ok) throw new Error("Role not found");
+      return await res.json();
+    } catch (error) {
+      return rejectWithValue(error.message);
     }
   }
 );
 
-/* ================= UPDATE ================= */
+/* ================= UPDATE ROLE ================= */
 export const updateRole = createAsyncThunk(
   "roles/updateRole",
-  async ({ id, roleName, permissions }, { rejectWithValue }) => {
+  async ({ id, roleData }, { rejectWithValue }) => {
     try {
-      const index = mockRoles.findIndex((r) => r.id == id);
-      if (index === -1) throw new Error();
-
-      mockRoles[index] = { id, roleName, permissions };
-      return mockRoles[index];
-    } catch {
-      return rejectWithValue("Failed to update role");
+      const res = await fetch(`${BASE_URL}/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(roleData),
+      });
+      if (!res.ok) throw new Error("Failed to update role");
+      return await res.json();
+    } catch (error) {
+      return rejectWithValue(error.message);
     }
   }
 );
 
-/* ================= DELETE ================= */
+/* ================= DELETE ROLE ================= */
 export const deleteRole = createAsyncThunk(
   "roles/deleteRole",
   async (id, { rejectWithValue }) => {
     try {
-      mockRoles = mockRoles.filter((r) => r.id !== id);
+      const res = await fetch(`${BASE_URL}/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete role");
       return id;
-    } catch {
-      return rejectWithValue("Failed to delete role");
+    } catch (error) {
+      return rejectWithValue(error.message);
     }
   }
 );
 
-/* ================= SLICE ================= */
+/* ================= ROLE SLICE ================= */
 const roleSlice = createSlice({
   name: "roles",
   initialState: {
@@ -91,11 +97,8 @@ const roleSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-
-      /* ADD */
-      .addCase(addRole.pending, (state) => {
-        state.loading = true;
-      })
+      /* ===== CREATE ===== */
+      .addCase(addRole.pending, (state) => { state.loading = true; })
       .addCase(addRole.fulfilled, (state, action) => {
         state.loading = false;
         state.roles.push(action.payload);
@@ -105,10 +108,8 @@ const roleSlice = createSlice({
         state.error = action.payload;
       })
 
-      /* FETCH ALL */
-      .addCase(fetchRoles.pending, (state) => {
-        state.loading = true;
-      })
+      /* ===== FETCH ALL ===== */
+      .addCase(fetchRoles.pending, (state) => { state.loading = true; })
       .addCase(fetchRoles.fulfilled, (state, action) => {
         state.loading = false;
         state.roles = action.payload;
@@ -118,10 +119,8 @@ const roleSlice = createSlice({
         state.error = action.payload;
       })
 
-      /* FETCH BY ID */
-      .addCase(fetchRoleById.pending, (state) => {
-        state.loading = true;
-      })
+      /* ===== FETCH BY ID ===== */
+      .addCase(fetchRoleById.pending, (state) => { state.loading = true; })
       .addCase(fetchRoleById.fulfilled, (state, action) => {
         state.loading = false;
         state.selectedRole = action.payload;
@@ -131,21 +130,27 @@ const roleSlice = createSlice({
         state.error = action.payload;
       })
 
-      /* UPDATE */
+      /* ===== UPDATE ===== */
+      .addCase(updateRole.pending, (state) => { state.loading = true; })
       .addCase(updateRole.fulfilled, (state, action) => {
-        const index = state.roles.findIndex(
-          (r) => r.id === action.payload.id
-        );
-        if (index !== -1) {
-          state.roles[index] = action.payload;
-        }
+        state.loading = false;
+        const index = state.roles.findIndex(r => r.id === action.payload.id);
+        if (index !== -1) state.roles[index] = action.payload;
+      })
+      .addCase(updateRole.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       })
 
-      /* DELETE */
+      /* ===== DELETE ===== */
+      .addCase(deleteRole.pending, (state) => { state.loading = true; })
       .addCase(deleteRole.fulfilled, (state, action) => {
-        state.roles = state.roles.filter(
-          (r) => r.id !== action.payload
-        );
+        state.loading = false;
+        state.roles = state.roles.filter(r => r.id !== action.payload);
+      })
+      .addCase(deleteRole.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

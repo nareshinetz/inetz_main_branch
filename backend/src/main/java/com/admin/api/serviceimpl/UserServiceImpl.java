@@ -9,69 +9,73 @@ import org.springframework.stereotype.Service;
 
 import com.admin.api.entity.User;
 import com.admin.api.model.UserRequest;
+import com.admin.api.model.UserResponse;
 import com.admin.api.repository.UserRepository;
 import com.admin.api.service.UserService;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserRepository repo;
+	@Autowired
+	private UserRepository repo;
 
-    @Autowired
-    private ModelMapper modelMapper;
+	@Autowired
+	private ModelMapper modelMapper;
 
-    @Override
-    public User createUser(UserRequest dto) {
+	@Override
+	public UserResponse createUser(UserRequest dto) {
 
-        // Duplicate check using emailId
-        if (repo.existsByEmailId(dto.getEmailId())) {
-            throw new RuntimeException("User already exists with this email");
-        }
+		if (repo.existsByUsername(dto.getUsername())) {
+			throw new RuntimeException("User already exists with this username");
+		}
 
-        User user = modelMapper.map(dto, User.class);
-        return repo.save(user);
-    }
+		User user = modelMapper.map(dto, User.class);
 
-    @Override
-    public List<User> getAllUsers() {
-        return repo.findAll();
-    }
+		user.setPassword(dto.getPassword());
 
-    @Override
-    public Optional<User> getUserById(int id) {
-        return repo.findById(id);
-    }
+		User savedUser = repo.save(user);
 
-    @Override
-    public boolean deleteUser(int id) {
-        if (repo.existsById(id)) {
-            repo.deleteById(id);
-            return true;
-        }
-        return false;
-    }
+		return modelMapper.map(savedUser, UserResponse.class);
+	}
 
-    @Override
-    public UserRequest updateUser(int id, UserRequest dto) {
+	@Override
+	public List<User> getAllUsers() {
+		return repo.findAll();
+	}
 
-        Optional<User> optional = repo.findById(id);
+	@Override
+	public Optional<User> getUserById(int id) {
+		return repo.findById(id);
+	}
 
-        if (optional.isEmpty()) {
-            return null;
-        }
+	@Override
+	public boolean deleteUser(int id) {
+		if (repo.existsById(id)) {
+			repo.deleteById(id);
+			return true;
+		}
+		return false;
+	}
 
-        User existing = optional.get();
+	@Override
+	public UserRequest updateUser(int id, UserRequest dto) {
 
-        // Skip ID mapping
-        modelMapper.typeMap(UserRequest.class, User.class)
-                   .addMappings(m -> m.skip(User::setId));
+		Optional<User> optional = repo.findById(id);
 
-        // Apply updates
-        modelMapper.map(dto, existing);
+		if (optional.isEmpty()) {
+			return null;
+		}
 
-        User saved = repo.save(existing);
+		User existing = optional.get();
 
-        return modelMapper.map(saved, UserRequest.class);
-    }
+		// Skip ID mapping
+		modelMapper.typeMap(UserRequest.class, User.class).addMappings(m -> m.skip(User::setId));
+
+		// Apply updates
+		modelMapper.map(dto, existing);
+
+		User saved = repo.save(existing);
+
+		return modelMapper.map(saved, UserRequest.class);
+	}
 }

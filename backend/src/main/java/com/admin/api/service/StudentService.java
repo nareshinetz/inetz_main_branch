@@ -21,6 +21,11 @@ public interface StudentService {
     Page<Student> getAllStudents(int page, int size);
     public List<Student> searchByName(String name);
     
+    
+    
+    
+    
+    
   
 }
 

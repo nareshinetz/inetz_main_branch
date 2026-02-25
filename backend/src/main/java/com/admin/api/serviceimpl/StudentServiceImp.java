@@ -9,16 +9,19 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import com.admin.api.entity.Batch;
 import com.admin.api.entity.Course;
 import com.admin.api.entity.Student;
 import com.admin.api.entity.StudentFees;
 import com.admin.api.model.StudentRequest;
+import com.admin.api.repository.BatchRepository;
 import com.admin.api.repository.CourseRepository;
 import com.admin.api.repository.StudentFeesRepository;
 import com.admin.api.repository.StudentRepository;
 import com.admin.api.service.StudentService;
 
 import jakarta.transaction.Transactional;
+
 
 @Service
 @Transactional
@@ -32,6 +35,9 @@ public class StudentServiceImp implements StudentService {
 
     @Autowired
     private StudentFeesRepository feesRepo;
+    
+    @Autowired
+    private BatchRepository batchRepository;
 
     @Autowired
     private ModelMapper mapper;
@@ -39,17 +45,22 @@ public class StudentServiceImp implements StudentService {
     @Override
     public Student createStudent(StudentRequest request) {
 
+        // 1️⃣ Email & Phone validation
         if (studentRepository.existsByEmailId(request.getEmailId()))
             throw new RuntimeException("Email already exists");
 
         if (studentRepository.existsByPhoneNumber(request.getPhoneNumber()))
             throw new RuntimeException("Phone already exists");
 
-        // 🔥 Get Course First
+        // 2️⃣ Get Course
         Course course = courseRepo.findByCourseName(request.getCourseName())
                 .orElseThrow(() -> new RuntimeException("Course not found"));
 
-        // 🔥 Generate Student ID (FIXED METHOD NAME)
+        // 3️⃣ Get Batch (DIRECT Long – no conversion)
+        Batch batch = batchRepository.findById(request.getBatchId())
+                .orElseThrow(() -> new RuntimeException("Batch not found"));
+
+        // 4️⃣ Generate Student ID
         long count = studentRepository
                 .countByProgramTypeAndCourse_CourseName(
                         request.getProgramType(),
@@ -60,14 +71,16 @@ public class StudentServiceImp implements StudentService {
                 + getDomainCode(request.getCourseName())
                 + String.format("%04d", count);
 
-        // 🔥 Map Student
+        // 5️⃣ Map Student & set relations
         Student student = mapper.map(request, Student.class);
         student.setId(studentId);
-        student.setCourse(course);   // VERY IMPORTANT
+        student.setCourse(course);
+        student.setBatch(batch);   // ⭐ THIS LINE STORES batch_id
 
+        // 6️⃣ Save Student
         Student savedStudent = studentRepository.save(student);
 
-        // 🔥 Fees Calculation
+        // 7️⃣ Fees Calculation
         Double totalFees = course.getPrice();
         Double discount = request.getDiscount() == null ? 0.0 : request.getDiscount();
 
@@ -76,7 +89,7 @@ public class StudentServiceImp implements StudentService {
 
         Double actualFees = totalFees - discount;
 
-        // 🔥 Create StudentFees
+        // 8️⃣ Create StudentFees
         StudentFees fees = new StudentFees();
         fees.setStudent(savedStudent);
         fees.setTotalFees(totalFees);
@@ -90,51 +103,18 @@ public class StudentServiceImp implements StudentService {
         return savedStudent;
     }
 
-
-
 	@Override
 	public Optional<Student> getStudentById(String id) {
 		return studentRepository.findById(id);
 	}
 
 	@Override
-public Student updateStudentById(String id, StudentRequest request) {
+	public Student updateStudentById(String id, StudentRequest request) {
+		Student student = studentRepository.findById(id).orElseThrow(() -> new RuntimeException("Student not found"));
 
-    Student student = studentRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Student not found"));
-
-    // ❌ DO NOT MAP ID
-    // ❌ DO NOT USE mapper.map(request, student);
-
-    student.setStudentName(request.getStudentName());
-    student.setEmailId(request.getEmailId());
-    student.setPhoneNumber(request.getPhoneNumber());
-    student.setModeOfTraining(request.getModeOfTraining());
-    student.setProgramType(request.getProgramType());
-    student.setCourseName(request.getCourseNumber());
-    student.setCollegeName(request.getCollegeName());
-    student.setDegree(request.getDegree());
-    student.setDepartment(request.getDepartment());
-    student.setCityName(request.getCityName());
-    student.setYearOfStudy(request.getYearOfStudy());
-    student.setSslcMark(request.getSslcMark());
-    student.setHscMark(request.getHscMark());
-    student.setUgMark(request.getUgMark());
-    student.setPgMark(request.getPgMark());
-    student.setDiscount(request.getDiscount());
-    student.setStatus(request.getStatus());
-    student.setComments(request.getComments());
-
-    // 🔥 If course is updatable
-    if (request.getCourseName() != null) {
-        Course course = courseRepo.findByCourseName(request.getCourseName())
-                .orElseThrow(() -> new RuntimeException("Course not found"));
-        student.setCourse(course);
-    }
-
-    return studentRepository.save(student);
-}
-
+		mapper.map(request, student);
+		return studentRepository.save(student);
+	}
 
 	@Override
 	public boolean deleteStudentById(String id) {
@@ -172,9 +152,9 @@ public Student updateStudentById(String id, StudentRequest request) {
 			return "PY";
 		if (name.equalsIgnoreCase("datascience"))
 			return "DS";
-		if (name.equalsIgnoreCase("MERN Stack"))
+		if (name.equalsIgnoreCase("mernstack"))
 			return "MS";
 		return "GN";
 	}
 
-}
+}    

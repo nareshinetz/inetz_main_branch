@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 import com.admin.api.entity.Role;
 import com.admin.api.model.RoleRequest;
@@ -29,7 +31,7 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public RoleRequest getRoleById(Long id) {
         Role role = repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Role not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found"));
         return modelMapper.map(role, RoleRequest.class);
     }
 
@@ -44,9 +46,16 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public RoleRequest updateRole(Long id, RoleRequest dto) {
         Role role = repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Role not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found"));
 
         role.setRole(dto.getRole());
+
+        // Update permissions if provided
+        role.setStudentManagement(dto.getStudentManagement() != null ? dto.getStudentManagement() : role.getStudentManagement());
+        role.setStaffManagement(dto.getStaffManagement() != null ? dto.getStaffManagement() : role.getStaffManagement());
+        role.setPriceManagement(dto.getPriceManagement() != null ? dto.getPriceManagement() : role.getPriceManagement());
+        role.setLeadManagement(dto.getLeadManagement() != null ? dto.getLeadManagement() : role.getLeadManagement());
+        role.setGenerateCertificate(dto.getGenerateCertificate() != null ? dto.getGenerateCertificate() : role.getGenerateCertificate());
 
         Role updated = repo.save(role);
         return modelMapper.map(updated, RoleRequest.class);
@@ -54,11 +63,9 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public boolean deleteRole(Long id) {
-
         if (!repo.existsById(id)) {
             return false;
         }
-
         repo.deleteById(id);
         return true;
     }

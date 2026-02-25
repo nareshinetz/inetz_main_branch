@@ -1,83 +1,131 @@
-import React from "react";
+import React, { useEffect, useMemo, useCallback } from "react";
 import {
+  Box,
   Card,
   CardContent,
   Typography,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  Chip,
+  Alert,
+  CircularProgress,
+  IconButton,
+  Button,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import CommonAgGrid from "../generic/AgGridTable";
+import { fetchBatches, deleteBatch } from "../redux/slices/batchSlice";
 
-const dummyBatches = [
-  {
-    id: 1,
-    date: "2026-02-20",
-    startTime: "10:00",
-    duration: 2,
-    trainer: "MERN Trainer",
-    course: "MERN",
-    room: "Room 1",
-  },
-  {
-    id: 2,
-    date: "2026-02-20",
-    startTime: "12:00",
-    duration: 1,
-    trainer: "Java Trainer",
-    course: "Java Full Stack",
-    room: "Room 2",
-  },
-  {
-    id: 3,
-    date: "2026-02-21",
-    startTime: "09:00",
-    duration: 3,
-    trainer: "Python Trainer",
-    course: "Python Full Stack",
-    room: "Room 3",
-  },
-];
+const selectBatchData = (state) => state.batches;
 
 const BatchList = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { batches, loading, error } = useSelector(selectBatchData);
+
+  useEffect(() => {
+    dispatch(fetchBatches());
+  }, [dispatch]);
+
+  const handleEdit = useCallback(
+    (id) => {
+      navigate(`/batch/edit/${id}`);
+    },
+    [navigate]
+  );
+
+  const handleDelete = useCallback(
+    (id) => {
+      if (window.confirm("Are you sure you want to delete this batch?")) {
+        dispatch(deleteBatch(id));
+      }
+    },
+    [dispatch]
+  );
+
+  const columnDefs = useMemo(
+    () => [
+      {
+        headerName: "Batch ID",
+        field: "batchName",
+        flex: 1,
+      },
+      {
+        headerName: "Room",
+        field: "roomNumber",
+      },
+      {
+        headerName: "Start Time",
+        field: "startTime",
+      },
+      {
+        headerName: "End Time",
+        field: "endTime",
+      },
+      {
+        headerName: "Status",
+        field: "status",
+      },
+      {
+        headerName: "Actions",
+        width: 140,
+        cellRenderer: (params) => (
+          <Box display="flex" gap={1}>
+            <IconButton
+              size="small"
+              color="primary"
+              onClick={() => handleEdit(params.data.id)}
+            >
+              <EditIcon />
+            </IconButton>
+
+            <IconButton
+              size="small"
+              color="error"
+              onClick={() => handleDelete(params.data.id)}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Box>
+        ),
+      },
+    ],
+    [handleEdit, handleDelete]
+  );
+
+  if (loading && batches.length === 0) {
+    return (
+      <Box display="flex" justifyContent="center" mt={5}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error && batches.length === 0) {
+    return <Alert severity="error">{error}</Alert>;
+  }
+
   return (
-    <Card>
-      <CardContent>
-        <Typography variant="h6" gutterBottom>
-          Batch Allocation List
-        </Typography>
+    <Box>
+      <Card>
+        <CardContent>
+          <Box display="flex" justifyContent="flex-end" mb={2}>
+            <Button
+              variant="contained"
+              onClick={() => navigate("/batch/add")}
+            >
+              Add Batch
+            </Button>
+          </Box>
 
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Date</TableCell>
-              <TableCell>Time</TableCell>
-              <TableCell>Duration</TableCell>
-              <TableCell>Trainer</TableCell>
-              <TableCell>Course</TableCell>
-              <TableCell>Room</TableCell>
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-            {dummyBatches.map((batch) => (
-              <TableRow key={batch.id}>
-                <TableCell>{batch.date}</TableCell>
-                <TableCell>{batch.startTime}</TableCell>
-                <TableCell>
-                  <Chip label={`${batch.duration} hrs`} />
-                </TableCell>
-                <TableCell>{batch.trainer}</TableCell>
-                <TableCell>{batch.course}</TableCell>
-                <TableCell>{batch.room}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+          <CommonAgGrid
+            rowData={batches}
+            columnDefs={columnDefs}
+            loadingMessage="Fetching batches..."
+          />
+        </CardContent>
+      </Card>
+    </Box>
   );
 };
 

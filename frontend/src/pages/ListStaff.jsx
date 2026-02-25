@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -6,10 +6,13 @@ import {
   CircularProgress,
   Card,
   CardContent,
+  IconButton,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchStaff, deleteStaff } from "../redux/slices/staffSlice";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import CommonAgGrid from "../generic/AgGridTable";
 
 const selectStaffData = (state) => state.staff;
@@ -24,78 +27,101 @@ const ListStaff = () => {
     dispatch(fetchStaff());
   }, [dispatch]);
 
-  const handleDelete = (id) => {
+  /* ================= HANDLERS ================= */
+
+  const handleDelete = useCallback((id) => {
     if (window.confirm("Are you sure you want to delete this staff member?")) {
       dispatch(deleteStaff(id));
     }
-  };
+  }, [dispatch]);
 
-  const handleEdit = (id) => {
+  const handleEdit = useCallback((id) => {
     navigate(`/staff/edit/${id}`);
-  };
+  }, [navigate]);
 
-  const handleView = (id) => {
-    navigate(`/staff/view/${id}`);
-  };
+  const handleView = useCallback(
+      (id) => navigate(`/students/view/${id}`),
+      [navigate]
+    );
 
- const filteredStaff = useMemo(() => {
-  if (!Array.isArray(staff)) return [];
+  /* ================= FILTER ================= */
 
-  const search = searchQuery.toLowerCase();
+  const filteredStaff = useMemo(() => {
+    if (!Array.isArray(staff)) return [];
 
-  return staff.filter((member) => (
-    (member.fullName || "").toLowerCase().includes(search) ||
-    (member.emailId || "").toLowerCase().includes(search) ||
-    (member.phoneNumber || "").toLowerCase().includes(search) ||
-    (member.skills || "").toLowerCase().includes(search)
-  ));
-}, [staff, searchQuery]);
+    const search = searchQuery.toLowerCase();
 
+    return staff.filter((member) => (
+      (member.staffName || "").toLowerCase().includes(search) ||
+      (member.emailId || "").toLowerCase().includes(search) ||
+      (member.phoneNumber || "").toLowerCase().includes(search) ||
+      (member.skills || "").toLowerCase().includes(search)
+    ));
+  }, [staff, searchQuery]);
+
+  /* ================= COLUMNS ================= */
 
   const staffColumns = useMemo(
     () => [
-      { headerName: "Full Name", field: "fullName", sortable: true, filter: true },
-      { headerName: "Email", field: "emailId", filter: true },
-      { headerName: "Phone", field: "phoneNumber" },
-      { headerName: "City", field: "cityName", filter: true },
-      {
-        headerName: "Experience",
-        field: "yearsOfExperience",
-        valueFormatter: (p) =>
-          p.value ? `${p.value} ${p.value === "1" ? "year" : "years"}` : "",
-      },
-      { headerName: "Skills", field: "skills", filter: true },
-      {
-        headerName: "Date of Joining",
-        field: "dateOfJoining",
-        valueFormatter: (p) =>
-          p.value ? new Date(p.value).toLocaleDateString() : "",
-      },
-      {
-        headerName: "Actions",
-        cellRenderer: (params) => (
-          <div>
-            <button
-              style={{ marginRight: 8 }}
-              onClick={() => handleView(params.data.id)}
-            >
-              View
-            </button>
-            <button
-              style={{ marginRight: 8 }}
+    {
+      headerName: "Staff ID",
+      field: "id",
+      cellRenderer: (params) => (
+          <Link
+            component="button"
+            underline="none"
+            sx={{
+              textDecoration: "underline",
+              textUnderlineOffset: "3px",
+              textDecorationThickness: "1.5px",
+              fontWeight: 500,
+            }}
+            onClick={() => handleView(params.value.id)}
+          >
+            {params.value} {/* use params.value, not params.data */}
+          </Link>
+      ),
+    },
+    { headerName: "Full Name", field: "staffName", sortable: true, filter: true },
+    { headerName: "Email", field: "emailId", filter: true },
+    { headerName: "Phone", field: "phoneNumber" },
+    { headerName: "City", field: "cityName", filter: true },
+    {
+      headerName: "Joining Date",
+      field: "joiningDate",
+      valueFormatter: (p) =>
+        p.value ? new Date(p.value).toLocaleDateString() : "",
+    },
+    {
+      headerName: "Actions",
+      width: 140,
+      cellRenderer: (params) => {
+        if (!params?.data?.id) return null;
+
+        return (
+          <Box display="flex" gap={1}>
+            <IconButton
+              color="primary"
+              size="small"
               onClick={() => handleEdit(params.data.id)}
             >
-              Edit
-            </button>
-            <button onClick={() => handleDelete(params.data.id)}>
-              Delete
-            </button>
-          </div>
-        ),
+              <EditIcon />
+            </IconButton>
+
+            <IconButton
+              color="error"
+              size="small"
+              onClick={() => handleDelete(params.data.id)}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Box>
+        );
       },
-    ],
-    []
-  );
+    },
+  ], [handleEdit, handleDelete]);
+
+  /* ================= LOADING ================= */
 
   if (loading && filteredStaff.length === 0) {
     return (
@@ -122,6 +148,8 @@ const ListStaff = () => {
       </Alert>
     );
   }
+
+  /* ================= RENDER ================= */
 
   return (
     <Box>

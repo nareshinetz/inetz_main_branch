@@ -32,10 +32,11 @@ import TransactionHistory from "./pages/TransactionHistory";
 import TransactionDetails from "./pages/ViewTransactions";
 import ListCourses from "./pages/ListCourse";
 import BatchScheduler from "./pages/BatchScheduler";
-import  ListRole  from "./pages/ListRole";
-import  AddRole  from "./pages/AddRole";
+import ListRole from "./pages/ListRole";
+import AddRole from "./pages/AddRole";
 import AddUser from "./pages/AddUser";
 import ListUsers from "./pages/ListUsers";
+import StaffDetails from "./pages/StaffDetails";
 
 
 
@@ -52,8 +53,8 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/staff/add" element={<AddStaff />} />
             <Route path="/staff/list" element={<ListStaff />} />
-            <Route path="/staff/view/:id" element={<ListStaff />} />
             <Route path="/staff/edit/:id" element={<EditStaff />} />
+            <Route path="/staff/view/:id" element={<StaffDetails />} />
             <Route path="/students/add" element={<AddStudent />} />
             <Route path="/students/list" element={<ListStudents />} />
             <Route path="/students/edit/:id" element={<AddStudent />} />
@@ -69,10 +70,11 @@ function App() {
             <Route path="/batches/add" element={<AddBatch />} />
             <Route path="/batches/list" element={<BatchList />} />
             <Route path="/batches/scheduler" element={<BatchScheduler />} />
-            <Route path="/role/add" element={<AddRole />} />
-            <Route path="/role/list" element={<ListRole />} />
+            <Route path="/roles/add" element={<AddRole />} />
+            <Route path="/roles/list" element={<ListRole />} />
             <Route path="/user/add" element={<AddUser />} />
             <Route path="/user/list" element={<ListUsers />} />
+
           </Route>
         </Routes>
       </Router>

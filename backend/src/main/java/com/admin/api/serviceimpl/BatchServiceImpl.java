@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.admin.api.entity.Batch;
 import com.admin.api.entity.Staff;
+import com.admin.api.entity.Student;
 import com.admin.api.model.BatchRequest;
 import com.admin.api.repository.BatchRepository;
 import com.admin.api.repository.StaffRepository;
@@ -100,4 +101,14 @@ public class BatchServiceImpl  implements BatchService{
 		}
 		return false;
 	}
+	
+	
+	   @Override
+	    public List<Student> getStudentsByBatchId(Long batchId) {
+
+	        Batch batch = batchRepository.findById(batchId)
+	                .orElseThrow(() -> new RuntimeException("Batch not found"));
+
+	        return batch.getStudents(); // 🔥 students list
+	    }
 }

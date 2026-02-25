@@ -10,6 +10,7 @@ import {
   CircularProgress,
   Stack,
   TextField,
+  Button,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -38,7 +39,7 @@ const AddStaff = () => {
     phoneNumber: "",
     cityName: "",
     degree: "",
-    aadharCard: "",
+    adharCard: "",
     panCard: "",
     roleName: "",
     skills: "",
@@ -67,13 +68,13 @@ const AddStaff = () => {
       "phoneNumber",
       "cityName",
       "degree",
-      "aadharCard",
+      "adharCard",
       "panCard",
       "roleName",
       "skills",
       "joiningDate",
       "salary",
-      "originalCertificate",
+      "originalCertification",
     ];
 
     const newErrors = {};
@@ -89,11 +90,13 @@ const AddStaff = () => {
 
   /* ================= SUBMIT ================= */
   const handleSubmit = async (e) => {
+
     e.preventDefault();
     if (!validateForm()) return;
 
     try {
       await dispatch(addStaff(formData)).unwrap();
+          console.log("Sending Data:", formData);
     } catch (err) {
       console.error(err);
     }
@@ -141,7 +144,7 @@ const AddStaff = () => {
           <form onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               {/* COLUMN 1 */}
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} md={4} sx={{ width: '30%' }}>
                 <Stack spacing={3}>
                   <TextField
                     sx={inputStyle}
@@ -164,10 +167,10 @@ const AddStaff = () => {
                   <TextField
                     sx={inputStyle}
                     label="Aadhar Card"
-                    name="aadharCard"
-                    value={formData.aadharCard}
+                    name="adharCard"
+                    value={formData.adharCard}
                     onChange={handleChange}
-                    error={errors.aadharCard}
+                    error={errors.adharCard}
                     fullWidth
                   />
                   <TextField
@@ -183,7 +186,7 @@ const AddStaff = () => {
               </Grid>
 
               {/* COLUMN 2 */}
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} md={4} sx={{ width: '30%' }}>
                 <Stack spacing={3}>
                   <TextField
                     sx={inputStyle}
@@ -223,7 +226,7 @@ const AddStaff = () => {
               </Grid>
 
               {/* COLUMN 3 */}
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} md={4} sx={{ width: '30%' }}>
                 <Stack spacing={3}>
                   <TextField
                     label="Skills"
@@ -254,25 +257,65 @@ const AddStaff = () => {
                   />
                   <TextField
                     label="Original Certificate"
-                    name="originalCertificate"
-                    value={formData.originalCertificate}
+                    name="originalCertification"
+                    value={formData.originalCertification}
                     onChange={handleChange}
-                    error={errors.originalCertificate}
+                    error={errors.originalCertification}
                     fullWidth
                   />
+                  <Grid item xs={12} md={4}>
+                    <Box
+                      sx={{
+                        height: '100%',
+                        display: "flex",
+                        flexDirection: "row-reverse",
+                        gap: 2,
+                        justifyContent: "center"
+                      }}
+                    >
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        size="large"
+                        fullWidth
+                        onClick={() => navigate("/staff/list")}
+                        sx={{
+                          borderRadius: 2,
+                          py: 1.5,
+                          boxShadow: "0 8px 24px rgba(25,118,210,0.35)",
+                          fontWeight: 700,
+                          "&:hover": {
+                            boxShadow: "0 12px 32px rgba(25,118,210,0.45)",
+                          },
+                        }}
+                      >
+                        { "SAVE"}
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        size="large"
+                        color="error"
+                        fullWidth
+                        
+                        sx={{
+                          borderRadius: 2,
+                          py: 1.5,
+                          borderWidth: 2,
+                          fontWeight: 600,
+                          "&:hover": {
+                            borderWidth: 2,
+                          },
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </Box>
+                  </Grid>
                 </Stack>
               </Grid>
             </Grid>
 
-            <Box sx={{ mt: 4, display: "flex", justifyContent: "flex-end", gap: 2 }}>
-              <CustomButton type="submit" label="SAVE" />
-              <CustomButton
-                variant="outlined"
-                color="error"
-                label="Cancel"
-                onClick={() => navigate("/staff/list")}
-              />
-            </Box>
+            
           </form>
         </CardContent>
       </Card>

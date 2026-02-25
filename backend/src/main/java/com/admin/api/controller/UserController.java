@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.admin.api.entity.User;
 import com.admin.api.model.UserRequest;
+import com.admin.api.model.UserResponse;
 import com.admin.api.response.ApiResponse;
 import com.admin.api.service.UserService;
 
@@ -32,20 +33,23 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    // CREATE
+ // CREATE
     @PostMapping("/create")
-    public ResponseEntity<ApiResponse<User>> createUser(@RequestBody UserRequest dto) {
+    public ResponseEntity<ApiResponse<UserResponse>> createUser(@RequestBody UserRequest dto) {
+
         try {
-            User user = userService.createUser(dto);
+
+            UserResponse response = userService.createUser(dto);
+
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new ApiResponse<>("User created successfully", user, true));
+                    .body(new ApiResponse<>("User created successfully", response, true));
 
         } catch (RuntimeException e) {
+
             return ResponseEntity.badRequest()
                     .body(new ApiResponse<>(e.getMessage(), null, false));
         }
     }
-
     // GET BY ID
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<User>> getUserById(@PathVariable int id) {
@@ -64,7 +68,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NO_CONTENT)
                     .body(new ApiResponse<>("No users found", null, false));
         }
-
+        
         return ResponseEntity.ok(new ApiResponse<>("Users fetched successfully", users, true));
     }
 

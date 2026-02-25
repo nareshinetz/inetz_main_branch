@@ -63,8 +63,8 @@ public class StudentController {
     //pagenation
     @GetMapping("/students")
     public ResponseEntity<ApiResponse<Page<Student>>> getAllStudents(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam int page,
+            @RequestParam int size) {
 
         Page<Student> students = studentService.getAllStudents(page, size);
 
@@ -94,25 +94,21 @@ public class StudentController {
     }
 
 
-        // UPDATE
-        @PutMapping("/students/{id}")
-        public ResponseEntity<ApiResponse<?>> updateStudentById(
-                @PathVariable String id,
-                @Valid @RequestBody StudentRequest studentRequest) {System.out.println("PATH ID RECEIVED: " + id);
+    // UPDATE
+    @PutMapping("/students/{id}")
+    public ResponseEntity<ApiResponse<?>> updateStudentById(
+            @PathVariable String id,
+            @Valid @RequestBody StudentRequest studentRequest) {
 
+        Student updated = studentService.updateStudentById(id, studentRequest);
 
+        if (updated != null)
+            return ResponseEntity.ok(new ApiResponse<>("Updated successfully", updated, true));
 
-            Student updated = studentService.updateStudentById(id, studentRequest);
-
-            if (updated != null)
-                
-                return ResponseEntity.ok(new ApiResponse<>("Updated successfully", updated, true));
-
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ApiResponse<>("Student not found", null, false));
-                    
-        }
-        
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiResponse<>("Student not found", null, false));
+    }
+    
 
     // DELETE
     @DeleteMapping("/students/{id}")

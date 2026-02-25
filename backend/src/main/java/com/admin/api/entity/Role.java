@@ -21,13 +21,28 @@ import lombok.Data;
 @Table(name="role")
 public class Role {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	
-	@Column(name="role")
-	private String role;
-	
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name="role")
+    private String role;
+
+    // Permission fields
+    @Column(name="student_management")
+    private Boolean studentManagement = false;
+
+    @Column(name="staff_management")
+    private Boolean staffManagement = false;
+
+    @Column(name="price_management")
+    private Boolean priceManagement = false;
+
+    @Column(name="lead_management")
+    private Boolean leadManagement = false;
+
+    @Column(name="generate_certificate")
+    private Boolean generateCertificate = false;
 
     @CreatedDate
     @Column(updatable = false)
@@ -35,8 +50,4 @@ public class Role {
 
     @LastModifiedDate
     private LocalDateTime modifiedAt;
-    
-   
-    
-
 }

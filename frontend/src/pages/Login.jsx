@@ -8,7 +8,7 @@ import axios from 'axios';
 import { LOGIN_MSG } from "../utils/messages";
 import { BASE_URL } from '../utils/api';
 import { validateEmail } from '../utils/validation';
-import { loginSuccess } from '../redux/slices/userSlice';
+import { setAuth } from "../redux/slices/authSlice";
 
 const Login = () => {
   const [password, setPassword] = useState('');
@@ -19,52 +19,46 @@ const Login = () => {
   const dispatch = useDispatch();
 
   const handleLogin = async () => {
-    if (!validateEmail(email)) {
-      setMsg(LOGIN_MSG.INVALID_EMAIL);
-      return;
-    }
+  if (!validateEmail(email)) {
+    setMsg(LOGIN_MSG.INVALID_EMAIL);
+    return;
+  }
 
-    try {
-      const res = await axios.post(`${BASE_URL}/login`, {
-        params: {
-          email: email,
-          password: password
-        }
-      });
+  try {
+    const res = await axios.post(`${BASE_URL}/login`, {
+      email,
+      password,
+    });
 
-      if (res.data.length > 0) {
-        const user = res.data[0];
+    const user = res.data;
 
+    dispatch(
+      setAuth({
+        user: {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          permissions: {
+            studentManagement: user.studentManagement,
+            staffManagement: user.staffManagement,
+            priceManagement: user.priceManagement,
+            leadManagement: user.leadManagement,
+            generateCertificate: user.generateCertificate,
+          },
+        },
+        token: user.token, // use real token from backend
+      })
+    );
 
+    setMsg(LOGIN_MSG.SUCCESS);
+    navigate("/dashboard");
 
-        dispatch(
-          loginSuccess({
-            user: {
-              id: user.id,
-              email: user.email,
-              role: user.role,
-              permissions: {
-                studentManagement: user.studentManagement,
-                staffManagement:user.staffManagement,
-                priceManagement: user.priceManagement,
-                leadManagement:user.LeadManagement,
-                generateCertificate:user.generateCertificate,
-              }
-            },
-            token: "fake-jwt-token-" + user.id,
-          })
-        );
-        setMsg(LOGIN_MSG.SUCCESS);
-        navigate("/dashboard");
-      } else {
-        setMsg(LOGIN_MSG.INVALID_CREDENTIALS);
-        setPassword("");
-      }
-    } catch (error) {
-      console.error(error);
-      setMsg(LOGIN_MSG.SERVER_ERROR);
-    }
-  };
+  } catch (error) {
+    console.error(error);
+    setMsg(LOGIN_MSG.INVALID_CREDENTIALS);
+    setPassword("");
+  }
+};
 
   return (
     <Box

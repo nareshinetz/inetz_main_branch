@@ -147,7 +147,7 @@ const AddCourse = () => {
         {isEditMode ? "Edit Course" : "Add New Course"}
       </Typography>
 
-    
+
 
       <Card sx={{ borderRadius: 3 }}>
         <CardContent sx={{ p: { xs: 4, sm: 4, md: 5 } }}>
@@ -183,7 +183,7 @@ const AddCourse = () => {
               </Grid>
 
               <Grid item xs={12} md={4} sx={{ width: '30%' }}>
-                <TextField
+                {/* <TextField
                   select
                   label="Trainer *"
                   name="instructor"
@@ -197,11 +197,11 @@ const AddCourse = () => {
                       {opt}
                     </MenuItem>
                   ))}
-                </TextField>
+                </TextField> */}
               </Grid>
 
               <Grid item xs={12} md={4} sx={{ width: '30%' }}>
-                <TextField
+                {/* <TextField
                   label="Duration (Months) *"
                   name="duration"
                   type="number"
@@ -209,60 +209,60 @@ const AddCourse = () => {
                   value={formData.duration}
                   onChange={handleChange}
                   error={formErrors.duration}
-                />
+                /> */}
 
-                
+
               </Grid>
-               <Grid item xs={12} md={4} sx={{ width: '30%' }}>
-                                  <Box
-                                    sx={{
-                                      height: '100%',
-                                      display: "flex",
-                                      flexDirection: "row-reverse",
-                                      gap: 2,
-                                      justifyContent: "center"
-                                    }}
-                                  >
-                                    <Button
-                                      type="submit"
-                                      variant="contained"
-                                      size="large"
-                                      fullWidth
-                                      sx={{
-                                        borderRadius: 2,
-                                        py: 1.5,
-                                        boxShadow: "0 8px 24px rgba(25,118,210,0.35)",
-                                        fontWeight: 700,
-                                        "&:hover": {
-                                          boxShadow: "0 12px 32px rgba(25,118,210,0.45)",
-                                        },
-                                      }}
-                                    >
-                                      {isEditMode ? "Update Student" : "SAVE"}
-                                    </Button>
-                                    <Button
-                                      variant="outlined"
-                                      size="large"
-                                      color="error"
-                                      fullWidth
-                                      onClick={() => navigate("/students/addpayment")}
-                                      sx={{
-                                        borderRadius: 2,
-                                        py: 1.5,
-                                        borderWidth: 2,
-                                        fontWeight: 600,
-                                        "&:hover": {
-                                          borderWidth: 2,
-                                        },
-                                      }}
-                                    >
-                                      Cancel
-                                    </Button>
-                                  </Box>
-                                </Grid>
+              <Grid item xs={12} md={4} sx={{ width: '30%' }}>
+                <Box
+                  sx={{
+                    height: '100%',
+                    display: "flex",
+                    flexDirection: "row-reverse",
+                    gap: 2,
+                    justifyContent: "center"
+                  }}
+                >
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    size="large"
+                    fullWidth
+                    sx={{
+                      borderRadius: 2,
+                      py: 1.5,
+                      boxShadow: "0 8px 24px rgba(25,118,210,0.35)",
+                      fontWeight: 700,
+                      "&:hover": {
+                        boxShadow: "0 12px 32px rgba(25,118,210,0.45)",
+                      },
+                    }}
+                  >
+                    {isEditMode ? "Update Student" : "SAVE"}
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    size="large"
+                    color="error"
+                    fullWidth
+                    onClick={() => navigate("/students/addpayment")}
+                    sx={{
+                      borderRadius: 2,
+                      py: 1.5,
+                      borderWidth: 2,
+                      fontWeight: 600,
+                      "&:hover": {
+                        borderWidth: 2,
+                      },
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </Box>
+              </Grid>
             </Grid>
 
-            
+
           </form>
 
           {error && (
@@ -273,7 +273,7 @@ const AddCourse = () => {
         </CardContent>
       </Card>
     </Box>
-    </>
+  </>
   );
 };
 

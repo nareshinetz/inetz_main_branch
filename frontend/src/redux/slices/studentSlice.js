@@ -23,6 +23,7 @@ export const fetchStudents = createAsyncThunk(
       });
       return res.data; // { message, data, success }
     } catch (err) {
+      console.log('Students rejected', err)
       return rejectWithValue(err.response?.data || err.message);
     }
   }

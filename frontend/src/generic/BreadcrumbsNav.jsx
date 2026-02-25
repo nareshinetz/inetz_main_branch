@@ -56,8 +56,8 @@ const menuItems = [
     name: "Roles",
     path: "/role",
     children: [
-      { name: "Add Role", path: "/role/add" },
-      { name: "Role List", path: "/role/list" },
+      { name: "Add Role", path: "/roles/add" },
+      { name: "Role List", path: "/roles/list" },
     ],
   },
 ];

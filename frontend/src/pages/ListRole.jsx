@@ -1,87 +1,190 @@
-import React from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import {
   Box,
+  Typography,
+  Alert,
+  CircularProgress,
   Card,
   CardContent,
-  Typography,
-  TextField,
-  Grid,
+  IconButton,
+  Link,
   Button,
-  Checkbox,
-  FormControlLabel,
-  FormGroup,
-  Stack,
-  Divider,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import CommonAgGrid from "../generic/AgGridTable"; // your AgGrid wrapper
+import { deleteRole, fetchRoles } from "../redux/slices/roleSlice";
 
-const permissionsList = [
-  "Add Student",
-  "Edit Student",
-  "Delete Student",
-  "View Reports",
-  "Manage Courses",
-];
+const selectRolesData = (state) => state.roles;
 
-const AddRole = () => {
-  return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" fontWeight={600} mb={3}>
-        Add New Role
-      </Typography>
+const ListRoles = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { roles, loading, error } = useSelector(selectRolesData);
+  const [searchQuery, setSearchQuery] = useState("");
 
-      <Card sx={{ borderRadius: 3 }}>
-        <CardContent sx={{ p: 4 }}>
-          <Grid container spacing={4}>
-            {/* Role Name */}
-            <Grid item xs={12} md={6}>
-              <TextField label="Role Name" fullWidth />
-            </Grid>
+  useEffect(() => {
+    dispatch(fetchRoles());
+  }, [dispatch]);
 
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
+  /* ================= HANDLERS ================= */
 
-            {/* Permissions */}
-            <Grid item xs={12}>
-              <Typography variant="subtitle1" fontWeight={600} mb={2}>
-                Assign Permissions
-              </Typography>
+  const handleDelete = useCallback((id) => {
+    if (window.confirm("Are you sure you want to delete this role?")) {
+      dispatch(deleteRole(id));
+    }
+  }, [dispatch]);
 
-              <FormGroup>
-                <Grid container spacing={2}>
-                  {permissionsList.map((perm) => (
-                    <Grid item xs={12} sm={6} md={4} key={perm}>
-                      <FormControlLabel
-                        control={<Checkbox />}
-                        label={perm}
-                      />
-                    </Grid>
-                  ))}
-                </Grid>
-              </FormGroup>
-            </Grid>
+  const handleEdit = useCallback((id) => {
+    navigate(`/roles/edit/${id}`);
+  }, [navigate]);
 
-            {/* Buttons */}
-            <Grid item xs={12}>
-              <Divider sx={{ mb: 3 }} />
-              <Stack
-                direction="row"
-                spacing={2}
-                justifyContent="flex-end"
+  const handleView = useCallback((id) => {
+    navigate(`/roles/view/${id}`);
+  }, [navigate]);
+
+  /* ================= FILTER ================= */
+
+  const filteredRoles = useMemo(() => {
+    if (!Array.isArray(roles)) return [];
+
+    const search = searchQuery.toLowerCase();
+
+    return roles.filter((r) =>
+      (r.role || "").toLowerCase().includes(search)
+    );
+  }, [roles, searchQuery]);
+
+  /* ================= COLUMNS ================= */
+
+  const roleColumns = useMemo(
+    () => [
+      {
+        headerName: "Role ID",
+        field: "id",
+        cellRenderer: (params) => (
+          <Link
+            component="button"
+            underline="none"
+            sx={{
+              textDecoration: "underline",
+              textUnderlineOffset: "3px",
+              textDecorationThickness: "1.5px",
+              fontWeight: 500,
+            }}
+            onClick={() => handleView(params.value)}
+          >
+            {params.value}
+          </Link>
+        ),
+      },
+      { headerName: "Role Name", field: "role", sortable: true, filter: true },
+      {
+        headerName: "Permissions",
+        field: "permissions",
+        width: 350,
+        valueGetter: (params) => {
+          const perms = [];
+          if (params.data.studentManagement) perms.push("Student");
+          if (params.data.staffManagement) perms.push("Staff");
+          if (params.data.priceManagement) perms.push("Price");
+          if (params.data.leadManagement) perms.push("Lead");
+          if (params.data.generateCertificate) perms.push("Generate Certificate");
+          return perms.join(", ");
+        },
+      },
+      {
+        headerName: "Actions",
+        width: 140,
+        cellRenderer: (params) => {
+          if (!params?.data?.id) return null;
+
+          return (
+            <Box display="flex" gap={1}>
+              <IconButton
+                color="primary"
+                size="small"
+                onClick={() => handleEdit(params.data.id)}
               >
-                <Button variant="outlined" color="error">
-                  Cancel
-                </Button>
-                <Button variant="contained">
-                  Save
-                </Button>
-              </Stack>
-            </Grid>
-          </Grid>
+                <EditIcon />
+              </IconButton>
+
+              <IconButton
+                color="error"
+                size="small"
+                onClick={() => handleDelete(params.data.id)}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Box>
+          );
+        },
+      },
+    ],
+    [handleEdit, handleDelete, handleView]
+  );
+
+  /* ================= LOADING & ERROR ================= */
+
+  if (loading && filteredRoles.length === 0) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="300px">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error && filteredRoles.length === 0) {
+    return (
+      <Alert severity="error" sx={{ width: "100%", maxWidth: 400, m: "auto" }}>
+        Failed to load roles: {typeof error === "string" ? error : String(error)}
+      </Alert>
+    );
+  }
+
+  if (!filteredRoles.length) {
+    return (
+      <Alert severity="info">
+        {searchQuery
+          ? "No roles found matching your search."
+          : "No roles found."}
+      </Alert>
+    );
+  }
+
+  /* ================= RENDER ================= */
+
+  return (
+    <Box>
+
+      {loading && filteredRoles.length > 0 && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          Refreshing role list...
+        </Alert>
+      )}
+
+      <Card>
+        <CardContent>
+          <Box display="flex" justifyContent="right" mb={2} flexWrap="wrap" gap={3}>
+          <Button
+              variant="contained"
+              color="primary"
+              onClick={() => navigate("/students/add")}
+            >
+              Add
+            </Button>
+            </Box>
+          <CommonAgGrid
+            rowData={filteredRoles}
+            columnDefs={roleColumns}
+            loadingMessage="Fetching roles..."
+          />
         </CardContent>
       </Card>
     </Box>
   );
 };
 
-export default AddRole;
+export default ListRoles;
